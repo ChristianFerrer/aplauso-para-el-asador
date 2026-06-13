@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Calendar, Tag, Users } from 'lucide-react'
-import { Profile, Event, Category } from '@/lib/types'
+import { Profile, Event, Category, EventGuest } from '@/lib/types'
 import EventAdmin from './EventAdmin'
 import CategoriesAdmin from './CategoriesAdmin'
 import UsersAdmin from './UsersAdmin'
@@ -14,12 +14,13 @@ interface Props {
   event: Event | null
   categories: Category[]
   users: Profile[]
+  eventGuests: EventGuest[]
   locale: string
 }
 
 type Tab = 'event' | 'categories' | 'users'
 
-export default function AdminPanel({ profile, event, categories, users, locale }: Props) {
+export default function AdminPanel({ profile, event, categories, users, eventGuests, locale }: Props) {
   const t = useTranslations('admin')
   const [activeTab, setActiveTab] = useState<Tab>('event')
 
@@ -58,7 +59,14 @@ export default function AdminPanel({ profile, event, categories, users, locale }
         {activeTab === 'categories' && (
           <CategoriesAdmin categories={categories} eventId={event?.id || ''} />
         )}
-        {activeTab === 'users' && <UsersAdmin users={users} currentUserId={profile.id} />}
+        {activeTab === 'users' && (
+          <UsersAdmin
+            users={users}
+            currentUserId={profile.id}
+            eventGuests={eventGuests}
+            eventId={event?.id || ''}
+          />
+        )}
       </div>
     </div>
   )

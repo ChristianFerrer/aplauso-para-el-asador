@@ -39,6 +39,19 @@ export async function deleteListItem(itemId: string) {
   return { success: true }
 }
 
+export async function updatePlusOnes(eventId: string, userId: string, plusOnes: number) {
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from('event_guests')
+    .update({ plus_ones: Math.max(0, plusOnes), updated_at: new Date().toISOString() })
+    .eq('event_id', eventId)
+    .eq('user_id', userId)
+  if (error) return { error: error.message }
+  revalidatePath('/es')
+  revalidatePath('/en')
+  return { success: true }
+}
+
 export async function updateAttendance(eventId: string, userId: string, status: string) {
   const supabase = await createClient()
   const { error } = await supabase.from('event_guests').upsert({

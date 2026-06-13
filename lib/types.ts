@@ -26,6 +26,7 @@ export interface EventGuest {
   event_id: string
   user_id: string
   status: AttendanceStatus
+  plus_ones: number
   updated_at: string
   profile?: Profile
 }

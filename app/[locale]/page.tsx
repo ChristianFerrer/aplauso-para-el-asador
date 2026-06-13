@@ -3,7 +3,8 @@ import { createClient } from '@/lib/supabase/server'
 import Navbar from '@/components/Navbar'
 import EventCard from '@/components/home/EventCard'
 import AttendanceKanban from '@/components/home/AttendanceKanban'
-import { Event, EventGuest, Profile } from '@/lib/types'
+import ListCarousel from '@/components/home/ListCarousel'
+import { Event, EventGuest, Profile, Category, ListItem } from '@/lib/types'
 
 type Props = {
   params: Promise<{ locale: string }>
@@ -14,8 +15,6 @@ export default async function HomePage({ params, searchParams }: Props) {
   const { locale } = await params
   const { code } = await searchParams
 
-  // OAuth callback lands here when Supabase redirect URL isn't whitelisted.
-  // Forward the code to the proper callback handler.
   if (code) {
     redirect(`/api/auth/callback?code=${code}&next=/${locale}`)
   }
@@ -44,9 +43,12 @@ export default async function HomePage({ params, searchParams }: Props) {
     const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single()
     profile = data as Profile | null
   }
+
   const event = eventRes.data as Event | null
 
   let guests: EventGuest[] = []
+  let categories: Category[] = []
+
   if (event) {
     // Auto-enroll current user into this event if not already present
     await supabase.from('event_guests').upsert(
@@ -54,12 +56,34 @@ export default async function HomePage({ params, searchParams }: Props) {
       { onConflict: 'event_id,user_id', ignoreDuplicates: true }
     )
 
-    const { data } = await supabase
-      .from('event_guests')
-      .select('*, profile:profiles(*)')
-      .eq('event_id', event.id)
-      .order('updated_at', { ascending: false })
-    guests = (data || []) as EventGuest[]
+    const [guestsRes, catsRes] = await Promise.all([
+      supabase
+        .from('event_guests')
+        .select('*, profile:profiles(*)')
+        .eq('event_id', event.id)
+        .order('updated_at', { ascending: false }),
+      supabase
+        .from('categories')
+        .select('*')
+        .eq('event_id', event.id)
+        .order('sort_order', { ascending: true }),
+    ])
+
+    guests = (guestsRes.data || []) as EventGuest[]
+
+    const cats = (catsRes.data || []) as Category[]
+    if (cats.length > 0) {
+      const { data: items } = await supabase
+        .from('list_items')
+        .select('*, profile:profiles(*)')
+        .in('category_id', cats.map(c => c.id))
+        .order('created_at', { ascending: true })
+
+      categories = cats.map(cat => ({
+        ...cat,
+        items: ((items || []) as ListItem[]).filter(i => i.category_id === cat.id),
+      }))
+    }
   }
 
   return (
@@ -75,6 +99,7 @@ export default async function HomePage({ params, searchParams }: Props) {
               eventId={event.id}
               userId={user.id}
             />
+            <ListCarousel categories={categories} />
           </>
         ) : (
           <div className="bg-white rounded-2xl border border-stone-200 p-12 text-center">
