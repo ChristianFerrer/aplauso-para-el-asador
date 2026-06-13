@@ -32,7 +32,20 @@ export default async function HomePage({ params, searchParams }: Props) {
     supabase.from('events').select('*').eq('active', true).single(),
   ])
 
-  const profile = profileRes.data as Profile | null
+  let profile = profileRes.data as Profile | null
+
+  // Defensive: create profile if trigger missed it
+  if (!profile && user) {
+    const name = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'Usuario'
+    await supabase.from('profiles').upsert({
+      id: user.id,
+      name,
+      avatar_url: user.user_metadata?.avatar_url || null,
+      role: 'guest',
+    }, { onConflict: 'id' })
+    const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+    profile = data as Profile | null
+  }
   const event = eventRes.data as Event | null
 
   let guests: EventGuest[] = []
