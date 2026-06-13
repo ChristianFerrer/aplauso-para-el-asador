@@ -6,7 +6,6 @@ import { useTranslations } from 'next-intl'
 import { Flame, List, Settings, LogOut, LogIn } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import LanguageSwitcher from './LanguageSwitcher'
 import { Profile } from '@/lib/types'
 import { getInitials } from '@/lib/utils'
 
@@ -88,8 +87,6 @@ export default function Navbar({ locale, profile }: NavbarProps) {
 
         {/* Right side */}
         <div className="flex items-center gap-2">
-          <LanguageSwitcher locale={locale} />
-
           {profile ? (
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-full bg-brand-500 text-white text-xs font-semibold flex items-center justify-center flex-shrink-0">
