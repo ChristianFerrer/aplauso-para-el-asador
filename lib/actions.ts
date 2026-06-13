@@ -115,3 +115,46 @@ export async function updateAttendance(eventId: string, userId: string, status: 
   revalidatePath('/en')
   return { success: true }
 }
+
+export async function createPlaceholderGuest(eventId: string, name: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'No autenticado' }
+  const { data, error } = await supabase.rpc('create_placeholder_guest', {
+    p_event_id: eventId,
+    p_name: name.trim(),
+  })
+  if (error) return { error: error.message }
+  revalidatePath('/es'); revalidatePath('/en')
+  return { success: true, profileId: data }
+}
+
+export async function updateProfileName(profileId: string, name: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'No autenticado' }
+  const { error } = await supabase.from('profiles').update({ name: name.trim() }).eq('id', profileId)
+  if (error) return { error: error.message }
+  revalidatePath('/es'); revalidatePath('/en')
+  return { success: true }
+}
+
+export async function removeFromEvent(userId: string, eventId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'No autenticado' }
+  const { error } = await supabase.from('event_guests').delete().eq('user_id', userId).eq('event_id', eventId)
+  if (error) return { error: error.message }
+  revalidatePath('/es'); revalidatePath('/en')
+  return { success: true }
+}
+
+export async function deletePlaceholderUser(profileId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'No autenticado' }
+  const { error } = await supabase.rpc('delete_placeholder_user', { p_profile_id: profileId })
+  if (error) return { error: error.message }
+  revalidatePath('/es'); revalidatePath('/en')
+  return { success: true }
+}
