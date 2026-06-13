@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
-import { Plus, Trash2 } from 'lucide-react'
+import { Plus, Trash2, Sparkles } from 'lucide-react'
 import { deleteListItem } from '@/lib/actions'
 import { Category, ListItem } from '@/lib/types'
 import { getInitials } from '@/lib/utils'
@@ -62,8 +62,8 @@ export default function CategorySection({ category, userId, userRole }: Props) {
       {/* Items */}
       <div className="flex-1 overflow-y-auto p-2.5 space-y-1.5">
         {items.length === 0 && (
-          <div className="text-center py-8">
-            <div className="text-2xl mb-2">✨</div>
+          <div className="flex flex-col items-center py-8 gap-2">
+            <Sparkles className="w-5 h-5 text-stone-300" strokeWidth={1.5} />
             <p className="text-xs text-stone-400 font-medium">{t('noItems')}</p>
           </div>
         )}

@@ -124,7 +124,6 @@ export default async function HomePage({ params, searchParams }: Props) {
           </>
         ) : (
           <div className="bg-white/80 rounded-3xl border border-stone-100 p-12 text-center shadow-card">
-            <div className="text-4xl mb-3">🍖</div>
             <p className="text-stone-400 text-sm font-medium">No hay evento activo</p>
           </div>
         )}

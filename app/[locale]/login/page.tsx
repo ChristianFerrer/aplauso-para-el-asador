@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server'
 import LoginForm from '@/components/auth/LoginForm'
 import Link from 'next/link'
+import { Flame } from 'lucide-react'
 
 type Props = { params: Promise<{ locale: string }> }
 
@@ -17,10 +18,14 @@ export default async function LoginPage({ params }: Props) {
 
       <div className="w-full max-w-sm relative z-10">
         <div className="text-center mb-8">
-          <div className="text-6xl mb-4 drop-shadow-lg select-none">🔥</div>
-          <h1 className="font-display text-3xl font-bold text-white tracking-tight drop-shadow">
-            Aplauso para el Asador
-          </h1>
+          <div className="flex items-center justify-center gap-3 mb-1">
+            <div className="w-11 h-11 bg-white/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+              <Flame className="w-6 h-6 text-white" strokeWidth={1.5} />
+            </div>
+            <h1 className="font-display text-3xl font-bold text-white tracking-tight drop-shadow">
+              Aplauso para el Asador
+            </h1>
+          </div>
           <p className="text-orange-200/80 text-sm mt-2 font-medium">
             Tu asado, perfectamente coordinado
           </p>

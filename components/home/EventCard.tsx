@@ -1,5 +1,5 @@
 import { getTranslations } from 'next-intl/server'
-import { MapPin, Calendar } from 'lucide-react'
+import { MapPin, Calendar, Beef } from 'lucide-react'
 import { Event } from '@/lib/types'
 import { formatDate } from '@/lib/utils'
 
@@ -19,12 +19,16 @@ export default async function EventCard({ event, locale }: Props) {
         <div className="absolute -bottom-6 left-8 w-24 h-24 bg-black/10 rounded-full" />
         <div className="absolute top-3 right-20 w-10 h-10 bg-white/10 rounded-full" />
         <div className="relative z-10">
-          <div className="text-3xl mb-2 drop-shadow select-none">🥩</div>
-          <h1 className="font-display text-2xl font-bold text-white tracking-tight leading-tight">
-            {event.name}
-          </h1>
+          <div className="flex items-center gap-3 mb-1">
+            <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Beef className="w-5 h-5 text-white" strokeWidth={1.5} />
+            </div>
+            <h1 className="font-display text-2xl font-bold text-white tracking-tight leading-tight">
+              {event.name}
+            </h1>
+          </div>
           {event.description && (
-            <p className="text-orange-100/80 text-sm mt-1.5 leading-relaxed">{event.description}</p>
+            <p className="text-orange-100/80 text-sm mt-1.5 leading-relaxed ml-12">{event.description}</p>
           )}
         </div>
       </div>

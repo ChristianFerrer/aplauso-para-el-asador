@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { ChevronLeft, ChevronRight, Package, Plus, Trash2, X, Check } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Package, Plus, Trash2, X, Check, Sparkles } from 'lucide-react'
 import { Category, ListItem, EventGuest } from '@/lib/types'
 import CategoryIcon from '@/components/lista/CategoryIcon'
 import AddItemModal from '@/components/lista/AddItemModal'
@@ -230,15 +230,15 @@ export default function ListCarousel({ categories: initialCategories, userId, is
       {/* Items */}
       <div className="space-y-2 min-h-[60px]">
         {!cat ? (
-          <div className="text-center py-8">
-            <div className="text-3xl mb-2">📦</div>
+          <div className="flex flex-col items-center py-8 gap-2">
+            <Package className="w-6 h-6 text-stone-300" strokeWidth={1.5} />
             <p className="text-xs text-stone-400 font-medium">
               {isAdmin ? 'Creá la primera categoría con el botón +' : 'Sin categorías aún'}
             </p>
           </div>
         ) : items.length === 0 ? (
-          <div className="text-center py-8">
-            <div className="text-3xl mb-2">✨</div>
+          <div className="flex flex-col items-center py-8 gap-2">
+            <Sparkles className="w-6 h-6 text-stone-300" strokeWidth={1.5} />
             <p className="text-xs text-stone-400 font-medium">¡Sé el primero en agregar algo!</p>
           </div>
         ) : (

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition, useRef } from 'react'
-import { Users, Minus, Plus } from 'lucide-react'
+import { Users, Minus, Plus, Clock, Car, MapPin, XCircle, LucideIcon } from 'lucide-react'
 import { updateAttendance, updatePlusOnes } from '@/lib/actions'
 import { EventGuest, AttendanceStatus } from '@/lib/types'
 import { cn } from '@/lib/utils'
@@ -16,7 +16,7 @@ interface Props {
 type Column = {
   id: AttendanceStatus
   label: string
-  emoji: string
+  icon: LucideIcon
   bg: string
   headerActive: string
   headerIdle: string
@@ -29,7 +29,7 @@ const COLUMNS: Column[] = [
   {
     id: 'pending',
     label: 'Pendiente',
-    emoji: '⏳',
+    icon: Clock,
     bg: 'bg-stone-50',
     headerActive: 'bg-stone-700 text-white shadow-sm',
     headerIdle: 'bg-stone-100 text-stone-500 hover:bg-stone-200',
@@ -40,7 +40,7 @@ const COLUMNS: Column[] = [
   {
     id: 'on_way',
     label: 'En Camino',
-    emoji: '🚗',
+    icon: Car,
     bg: 'bg-amber-50',
     headerActive: 'bg-amber-500 text-white shadow-sm shadow-amber-200',
     headerIdle: 'bg-amber-100 text-amber-700 hover:bg-amber-200',
@@ -51,7 +51,7 @@ const COLUMNS: Column[] = [
   {
     id: 'arrived',
     label: 'Llegué',
-    emoji: '🎉',
+    icon: MapPin,
     bg: 'bg-emerald-50',
     headerActive: 'bg-emerald-500 text-white shadow-sm shadow-emerald-200',
     headerIdle: 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200',
@@ -62,7 +62,7 @@ const COLUMNS: Column[] = [
   {
     id: 'not_going',
     label: 'No voy',
-    emoji: '❌',
+    icon: XCircle,
     bg: 'bg-rose-50',
     headerActive: 'bg-rose-500 text-white shadow-sm shadow-rose-200',
     headerIdle: 'bg-rose-100 text-rose-600 hover:bg-rose-200',
@@ -164,8 +164,10 @@ export default function AttendanceKanban({ guests: initialGuests, userId, eventI
                   myStatus === col.id ? col.headerActive : col.headerIdle
                 )}
               >
-                <span className="text-base block leading-none mb-0.5">{col.emoji}</span>
-                <span className="text-[10px] font-bold block tracking-wide">{col.label}</span>
+                <div className="flex items-center justify-center gap-1 mb-0.5">
+                  <col.icon className="w-3 h-3" strokeWidth={2} />
+                  <span className="text-[10px] font-bold tracking-wide leading-none">{col.label}</span>
+                </div>
                 <span className="text-[10px] opacity-60">{colGuests.length}</span>
               </button>
 

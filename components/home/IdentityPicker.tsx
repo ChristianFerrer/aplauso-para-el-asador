@@ -4,6 +4,7 @@ import { useEffect, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { claimIdentity, skipIdentityClaim } from '@/lib/actions'
+import { Flame } from 'lucide-react'
 
 interface Placeholder { id: string; name: string }
 interface Props { initialPlaceholders: Placeholder[] }
@@ -62,8 +63,12 @@ export default function IdentityPicker({ initialPlaceholders }: Props) {
 
       <div className="relative z-10 bg-white/95 backdrop-blur-xl rounded-3xl p-7 w-full max-w-sm shadow-2xl shadow-black/30 border border-white/40">
         <div className="text-center mb-6">
-          <div className="text-5xl mb-3 drop-shadow select-none">🔥</div>
-          <h2 className="font-display text-2xl font-bold text-stone-900 tracking-tight">¿Quién sos?</h2>
+          <div className="flex items-center justify-center gap-2.5 mb-2">
+            <div className="w-9 h-9 bg-gradient-to-br from-orange-500 to-rose-500 rounded-xl flex items-center justify-center shadow-brand">
+              <Flame className="w-5 h-5 text-white" strokeWidth={1.5} />
+            </div>
+            <h2 className="font-display text-2xl font-bold text-stone-900 tracking-tight">¿Quién sos?</h2>
+          </div>
           <p className="text-sm text-stone-500 mt-2 leading-relaxed">
             Elegí tu nombre para vincular tus datos al asado
           </p>
