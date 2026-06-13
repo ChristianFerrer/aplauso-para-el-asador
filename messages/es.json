@@ -1,0 +1,96 @@
+{
+  "nav": {
+    "home": "Inicio",
+    "list": "La Lista",
+    "admin": "Admin",
+    "logout": "Cerrar sesión",
+    "login": "Iniciar sesión"
+  },
+  "auth": {
+    "login": "Iniciar sesión",
+    "register": "Crear cuenta",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "name": "Nombre completo",
+    "continueWithGoogle": "Continuar con Google",
+    "or": "o",
+    "noAccount": "¿No tenés cuenta?",
+    "haveAccount": "¿Ya tenés cuenta?",
+    "registerLink": "Crear cuenta",
+    "loginLink": "Iniciar sesión",
+    "errors": {
+      "invalidCredentials": "Correo o contraseña incorrectos",
+      "emailInUse": "Este correo ya está registrado",
+      "generic": "Ocurrió un error. Intentá de nuevo."
+    }
+  },
+  "home": {
+    "eventDate": "Fecha",
+    "eventLocation": "Lugar",
+    "eventDescription": "Descripción",
+    "guests": "Invitados",
+    "myStatus": "Mi estado",
+    "arrived": "Llegué",
+    "onWay": "En camino",
+    "notGoing": "No voy",
+    "pending": "Pendiente",
+    "arrivedCount": "{count} llegaron",
+    "onWayCount": "{count} en camino",
+    "notGoingCount": "{count} no van",
+    "pendingCount": "{count} sin responder"
+  },
+  "list": {
+    "title": "La Lista del Asado",
+    "total": "Total de items",
+    "addItem": "Agregar item",
+    "itemName": "¿Qué traés?",
+    "quantity": "Cantidad",
+    "unit": "Unidad (kg, L, unidades...)",
+    "notes": "Notas",
+    "add": "Agregar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "bringBy": "Lo trae",
+    "noItems": "Nadie agregó nada acá todavía. ¡Sé el primero!",
+    "units": {
+      "kg": "kg",
+      "g": "g",
+      "L": "L",
+      "ml": "ml",
+      "units": "unidades",
+      "bottles": "botellas",
+      "packs": "packs"
+    }
+  },
+  "admin": {
+    "title": "Administración",
+    "event": "Evento",
+    "categories": "Categorías",
+    "users": "Usuarios",
+    "eventName": "Nombre del evento",
+    "eventLocation": "Lugar",
+    "eventDescription": "Descripción",
+    "eventDate": "Fecha y hora",
+    "save": "Guardar",
+    "saved": "Guardado",
+    "addCategory": "Agregar categoría",
+    "categoryName": "Nombre de categoría",
+    "categoryIcon": "Ícono",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "cancel": "Cancelar",
+    "noAdmin": "No tenés permisos de administrador",
+    "makeAdmin": "Hacer admin",
+    "removeAdmin": "Quitar admin",
+    "role": "Rol",
+    "admin": "Admin",
+    "guest": "Invitado",
+    "userName": "Nombre",
+    "userEmail": "Correo"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error",
+    "retry": "Reintentar"
+  }
+}

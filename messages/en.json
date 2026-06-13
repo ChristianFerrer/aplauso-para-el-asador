@@ -1,0 +1,96 @@
+{
+  "nav": {
+    "home": "Home",
+    "list": "The List",
+    "admin": "Admin",
+    "logout": "Log out",
+    "login": "Log in"
+  },
+  "auth": {
+    "login": "Log in",
+    "register": "Create account",
+    "email": "Email address",
+    "password": "Password",
+    "name": "Full name",
+    "continueWithGoogle": "Continue with Google",
+    "or": "or",
+    "noAccount": "Don't have an account?",
+    "haveAccount": "Already have an account?",
+    "registerLink": "Create account",
+    "loginLink": "Log in",
+    "errors": {
+      "invalidCredentials": "Wrong email or password",
+      "emailInUse": "This email is already registered",
+      "generic": "Something went wrong. Please try again."
+    }
+  },
+  "home": {
+    "eventDate": "Date",
+    "eventLocation": "Location",
+    "eventDescription": "Description",
+    "guests": "Guests",
+    "myStatus": "My status",
+    "arrived": "Arrived",
+    "onWay": "On my way",
+    "notGoing": "Not going",
+    "pending": "Pending",
+    "arrivedCount": "{count} arrived",
+    "onWayCount": "{count} on the way",
+    "notGoingCount": "{count} not going",
+    "pendingCount": "{count} pending"
+  },
+  "list": {
+    "title": "The Asado List",
+    "total": "Total items",
+    "addItem": "Add item",
+    "itemName": "What are you bringing?",
+    "quantity": "Quantity",
+    "unit": "Unit (kg, L, units...)",
+    "notes": "Notes",
+    "add": "Add",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "bringBy": "Brought by",
+    "noItems": "Nothing here yet. Be the first!",
+    "units": {
+      "kg": "kg",
+      "g": "g",
+      "L": "L",
+      "ml": "ml",
+      "units": "units",
+      "bottles": "bottles",
+      "packs": "packs"
+    }
+  },
+  "admin": {
+    "title": "Administration",
+    "event": "Event",
+    "categories": "Categories",
+    "users": "Users",
+    "eventName": "Event name",
+    "eventLocation": "Location",
+    "eventDescription": "Description",
+    "eventDate": "Date & time",
+    "save": "Save",
+    "saved": "Saved",
+    "addCategory": "Add category",
+    "categoryName": "Category name",
+    "categoryIcon": "Icon",
+    "delete": "Delete",
+    "edit": "Edit",
+    "cancel": "Cancel",
+    "noAdmin": "You don't have admin permissions",
+    "makeAdmin": "Make admin",
+    "removeAdmin": "Remove admin",
+    "role": "Role",
+    "admin": "Admin",
+    "guest": "Guest",
+    "userName": "Name",
+    "userEmail": "Email"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "retry": "Retry"
+  }
+}
