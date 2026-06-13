@@ -1,5 +1,4 @@
 import { redirect } from 'next/navigation'
-import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import Navbar from '@/components/Navbar'
 import EventCard from '@/components/home/EventCard'
@@ -49,6 +48,12 @@ export default async function HomePage({ params, searchParams }: Props) {
 
   let guests: EventGuest[] = []
   if (event) {
+    // Auto-enroll current user into this event if not already present
+    await supabase.from('event_guests').upsert(
+      { event_id: event.id, user_id: user.id, status: 'pending', updated_at: new Date().toISOString() },
+      { onConflict: 'event_id,user_id', ignoreDuplicates: true }
+    )
+
     const { data } = await supabase
       .from('event_guests')
       .select('*, profile:profiles(*)')
@@ -56,9 +61,6 @@ export default async function HomePage({ params, searchParams }: Props) {
       .order('updated_at', { ascending: false })
     guests = (data || []) as EventGuest[]
   }
-
-  // Find current user's guest record
-  const myGuest = guests.find(g => g.user_id === user.id)
 
   return (
     <div className="min-h-screen bg-stone-50">
