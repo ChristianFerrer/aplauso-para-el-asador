@@ -112,12 +112,14 @@ export default async function HomePage({ params, searchParams }: Props) {
               guests={guests}
               eventId={event.id}
               userId={user.id}
+              isAdmin={isAdmin}
             />
             <ListCarousel
               categories={categories}
               userId={user.id}
               isAdmin={isAdmin}
               eventId={event.id}
+              guests={guests}
             />
           </>
         ) : (

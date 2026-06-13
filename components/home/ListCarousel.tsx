@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChevronLeft, ChevronRight, Package, Plus, Trash2, X, Check } from 'lucide-react'
-import { Category, ListItem } from '@/lib/types'
+import { Category, ListItem, EventGuest } from '@/lib/types'
 import CategoryIcon from '@/components/lista/CategoryIcon'
 import AddItemModal from '@/components/lista/AddItemModal'
 import { deleteListItem, addCategory, deleteCategory } from '@/lib/actions'
@@ -18,9 +18,13 @@ interface Props {
   userId: string
   isAdmin: boolean
   eventId: string
+  guests: EventGuest[]
 }
 
-export default function ListCarousel({ categories: initialCategories, userId, isAdmin, eventId }: Props) {
+export default function ListCarousel({ categories: initialCategories, userId, isAdmin, eventId, guests }: Props) {
+  const guestOptions = guests
+    .filter(g => g.user_id !== userId && g.profile?.name)
+    .map(g => ({ id: g.user_id, name: g.profile!.name }))
   const router = useRouter()
   const [idx, setIdx] = useState(0)
   const [showItemModal, setShowItemModal] = useState(false)
@@ -277,6 +281,8 @@ export default function ListCarousel({ categories: initialCategories, userId, is
           categoryId={cat.id}
           onClose={() => setShowItemModal(false)}
           onAdded={() => { setShowItemModal(false); router.refresh() }}
+          isAdmin={isAdmin}
+          guestOptions={isAdmin ? guestOptions : undefined}
         />
       )}
     </div>

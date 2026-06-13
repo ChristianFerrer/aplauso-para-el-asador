@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useRef } from 'react'
 import { Users, Minus, Plus } from 'lucide-react'
 import { updateAttendance, updatePlusOnes } from '@/lib/actions'
 import { EventGuest, AttendanceStatus } from '@/lib/types'
@@ -10,6 +10,7 @@ interface Props {
   guests: EventGuest[]
   userId: string
   eventId: string
+  isAdmin?: boolean
 }
 
 type Column = {
@@ -61,21 +62,24 @@ const COLUMNS: Column[] = [
   },
 ]
 
-export default function AttendanceKanban({ guests: initialGuests, userId, eventId }: Props) {
+export default function AttendanceKanban({ guests: initialGuests, userId, eventId, isAdmin }: Props) {
   const [guests, setGuests] = useState(initialGuests)
   const [dragOverCol, setDragOverCol] = useState<AttendanceStatus | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [isPending, startTransition] = useTransition()
   const [isPlusPending, startPlusTransition] = useTransition()
+  const draggedUserId = useRef<string>(userId)
 
   const myGuest = guests.find(g => g.user_id === userId)
   const myStatus = myGuest?.status ?? 'pending'
   const myPlusOnes = myGuest?.plus_ones ?? 0
 
-  function moveCard(newStatus: AttendanceStatus) {
-    if (newStatus === myStatus || isPending) return
-    setGuests(prev => prev.map(g => g.user_id === userId ? { ...g, status: newStatus } : g))
-    startTransition(async () => { await updateAttendance(eventId, userId, newStatus) })
+  function moveCard(targetUserId: string, newStatus: AttendanceStatus) {
+    if (isPending) return
+    const current = guests.find(g => g.user_id === targetUserId)
+    if (current?.status === newStatus) return
+    setGuests(prev => prev.map(g => g.user_id === targetUserId ? { ...g, status: newStatus } : g))
+    startTransition(async () => { await updateAttendance(eventId, targetUserId, newStatus) })
   }
 
   function changePlusOnes(delta: number) {
@@ -85,9 +89,10 @@ export default function AttendanceKanban({ guests: initialGuests, userId, eventI
     startPlusTransition(async () => { await updatePlusOnes(eventId, userId, next) })
   }
 
-  function onDragStart(e: React.DragEvent) {
+  function onDragStart(e: React.DragEvent, guestUserId: string) {
     e.dataTransfer.effectAllowed = 'move'
-    e.dataTransfer.setData('text/plain', 'mycard')
+    e.dataTransfer.setData('text/plain', guestUserId)
+    draggedUserId.current = guestUserId
     setIsDragging(true)
   }
   function onDragEnd() { setIsDragging(false); setDragOverCol(null) }
@@ -100,7 +105,7 @@ export default function AttendanceKanban({ guests: initialGuests, userId, eventI
     e.preventDefault()
     setIsDragging(false)
     setDragOverCol(null)
-    moveCard(colId)
+    moveCard(draggedUserId.current, colId)
   }
 
   const total = guests.reduce((sum, g) => sum + 1 + (g.plus_ones ?? 0), 0)
@@ -133,9 +138,9 @@ export default function AttendanceKanban({ guests: initialGuests, userId, eventI
                 isTarget ? col.dropRing : ''
               )}
             >
-              {/* Column header — tap to move */}
+              {/* Column header — tap to move own card */}
               <button
-                onClick={() => moveCard(col.id)}
+                onClick={() => moveCard(userId, col.id)}
                 disabled={myStatus === col.id || isPending}
                 className={cn(
                   'w-full rounded-lg px-2 py-1.5 text-center transition-all disabled:cursor-default',
@@ -149,21 +154,24 @@ export default function AttendanceKanban({ guests: initialGuests, userId, eventI
               {/* Guest cards */}
               {colGuests.map(guest => {
                 const isMe = guest.user_id === userId
+                const canDrag = isMe || isAdmin
                 const name = guest.profile?.name || '?'
                 const plusOnes = guest.plus_ones ?? 0
 
                 return (
                   <div
                     key={guest.id}
-                    draggable={isMe}
-                    onDragStart={isMe ? onDragStart : undefined}
-                    onDragEnd={isMe ? onDragEnd : undefined}
-                    title={isMe ? 'Arrastrá para cambiar tu estado' : undefined}
+                    draggable={canDrag}
+                    onDragStart={canDrag ? e => onDragStart(e, guest.user_id) : undefined}
+                    onDragEnd={canDrag ? onDragEnd : undefined}
+                    title={isMe ? 'Arrastrá para cambiar tu estado' : isAdmin ? `Mover a ${name}` : undefined}
                     className={cn(
                       'rounded-lg px-2 py-1.5 text-xs font-medium select-none transition-all',
                       isMe
                         ? cn(col.myCardClass, 'cursor-grab active:cursor-grabbing shadow-sm ring-2 ring-white/40 ring-offset-1 active:scale-95')
-                        : cn(col.cardClass, 'cursor-default')
+                        : isAdmin
+                          ? cn(col.cardClass, 'cursor-grab active:cursor-grabbing active:scale-95 opacity-90 hover:opacity-100')
+                          : cn(col.cardClass, 'cursor-default')
                     )}
                   >
                     <span className="truncate block leading-tight">{name}</span>

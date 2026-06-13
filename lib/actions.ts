@@ -9,6 +9,7 @@ export async function addListItem(data: {
   quantity: number
   unit: string
   notes: string
+  overrideUserId?: string
 }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -16,7 +17,7 @@ export async function addListItem(data: {
 
   const { error } = await supabase.from('list_items').insert({
     category_id: data.categoryId,
-    user_id: user.id,
+    user_id: data.overrideUserId || user.id,
     item_name: data.itemName,
     quantity: data.quantity,
     unit: data.unit,
