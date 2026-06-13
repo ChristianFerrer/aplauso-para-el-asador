@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
+import { useRouter } from 'next/navigation'
 import { X, AlertCircle } from 'lucide-react'
 import { addListItem } from '@/lib/actions'
 
@@ -15,6 +16,7 @@ const UNITS = ['kg', 'g', 'L', 'ml', 'unidades', 'botellas', 'packs']
 
 export default function AddItemModal({ categoryId, onClose, onAdded }: Props) {
   const t = useTranslations('list')
+  const router = useRouter()
   const [itemName, setItemName] = useState('')
   const [quantity, setQuantity] = useState('1')
   const [unit, setUnit] = useState('unidades')
@@ -40,6 +42,7 @@ export default function AddItemModal({ categoryId, onClose, onAdded }: Props) {
     if (result?.error) {
       setError(result.error)
     } else {
+      router.refresh()
       onAdded()
     }
   }

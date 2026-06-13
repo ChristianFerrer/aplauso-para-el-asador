@@ -27,6 +27,8 @@ export async function addListItem(data: {
 
   revalidatePath('/es/lista')
   revalidatePath('/en/lista')
+  revalidatePath('/es')
+  revalidatePath('/en')
   return { success: true }
 }
 
@@ -36,6 +38,8 @@ export async function deleteListItem(itemId: string) {
   if (error) return { error: error.message }
   revalidatePath('/es/lista')
   revalidatePath('/en/lista')
+  revalidatePath('/es')
+  revalidatePath('/en')
   return { success: true }
 }
 

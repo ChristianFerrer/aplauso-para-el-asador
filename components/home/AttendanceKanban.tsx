@@ -103,7 +103,7 @@ export default function AttendanceKanban({ guests: initialGuests, userId, eventI
     moveCard(colId)
   }
 
-  const total = guests.length
+  const total = guests.reduce((sum, g) => sum + 1 + (g.plus_ones ?? 0), 0)
 
   return (
     <div className="bg-white rounded-2xl border border-stone-200 p-4">

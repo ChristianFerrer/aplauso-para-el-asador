@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useTranslations } from 'next-intl'
+import { useRouter } from 'next/navigation'
 import { Plus, Trash2 } from 'lucide-react'
 import { deleteListItem } from '@/lib/actions'
 import { Category, ListItem } from '@/lib/types'
@@ -17,6 +18,7 @@ interface Props {
 
 export default function CategorySection({ category, userId, userRole }: Props) {
   const t = useTranslations('list')
+  const router = useRouter()
   const [showModal, setShowModal] = useState(false)
   const [deleting, setDeleting] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
@@ -28,6 +30,7 @@ export default function CategorySection({ category, userId, userRole }: Props) {
     startTransition(async () => {
       await deleteListItem(itemId)
       setDeleting(null)
+      router.refresh()
     })
   }
 

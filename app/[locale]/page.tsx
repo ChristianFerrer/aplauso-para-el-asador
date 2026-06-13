@@ -99,7 +99,7 @@ export default async function HomePage({ params, searchParams }: Props) {
               eventId={event.id}
               userId={user.id}
             />
-            <ListCarousel categories={categories} />
+            <ListCarousel categories={categories} userId={user.id} />
           </>
         ) : (
           <div className="bg-white rounded-2xl border border-stone-200 p-12 text-center">
