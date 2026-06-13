@@ -20,6 +20,7 @@ interface Props {
   currentUserId: string
   eventGuests: EventGuest[]
   eventId: string
+  itemCounts: Record<string, number>
 }
 
 const STATUS_LABELS: Record<AttendanceStatus, { label: string; class: string }> = {
@@ -29,7 +30,7 @@ const STATUS_LABELS: Record<AttendanceStatus, { label: string; class: string }> 
   pending:   { label: 'Pendiente',  class: 'bg-stone-100 text-stone-500' },
 }
 
-export default function UsersAdmin({ users: initial, currentUserId, eventGuests: initialGuests, eventId }: Props) {
+export default function UsersAdmin({ users: initial, currentUserId, eventGuests: initialGuests, eventId, itemCounts }: Props) {
   const t = useTranslations('admin')
   const router = useRouter()
 
@@ -172,6 +173,7 @@ export default function UsersAdmin({ users: initial, currentUserId, eventGuests:
         const plusOnes = guest?.plus_ones ?? 0
         const isEditing = editingId === user.id
         const isConfirmingDelete = confirmDelete === user.id
+        const userItemCount = itemCounts[user.id] || 0
 
         return (
           <div key={user.id} className="bg-white rounded-2xl border border-stone-200 p-4">
@@ -226,18 +228,28 @@ export default function UsersAdmin({ users: initial, currentUserId, eventGuests:
                   </p>
                 )}
                 {!isEditing && (
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-medium ${
-                      user.role === 'admin' ? 'bg-brand-50 text-brand-700' : 'bg-stone-100 text-stone-500'
-                    }`}>
-                      {user.role === 'admin' ? t('admin') : t('guest')}
-                    </span>
-                    {statusInfo && (
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-medium ${statusInfo.class}`}>
-                        {statusInfo.label}
-                      </span>
+                  <>
+                    {user.email && (
+                      <p className="text-[11px] text-stone-400 truncate mt-0.5">{user.email}</p>
                     )}
-                  </div>
+                    <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-medium ${
+                        user.role === 'admin' ? 'bg-brand-50 text-brand-700' : 'bg-stone-100 text-stone-500'
+                      }`}>
+                        {user.role === 'admin' ? t('admin') : t('guest')}
+                      </span>
+                      {statusInfo && (
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-medium ${statusInfo.class}`}>
+                          {statusInfo.label}
+                        </span>
+                      )}
+                      {userItemCount > 0 && (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-md font-medium bg-stone-100 text-stone-500">
+                          {userItemCount} {userItemCount === 1 ? 'item' : 'items'}
+                        </span>
+                      )}
+                    </div>
+                  </>
                 )}
               </div>
 

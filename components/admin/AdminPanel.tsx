@@ -15,12 +15,13 @@ interface Props {
   categories: Category[]
   users: Profile[]
   eventGuests: EventGuest[]
+  itemCounts: Record<string, number>
   locale: string
 }
 
 type Tab = 'event' | 'categories' | 'users'
 
-export default function AdminPanel({ profile, event, categories, users, eventGuests, locale }: Props) {
+export default function AdminPanel({ profile, event, categories, users, eventGuests, itemCounts, locale }: Props) {
   const t = useTranslations('admin')
   const [activeTab, setActiveTab] = useState<Tab>('event')
 
@@ -65,6 +66,7 @@ export default function AdminPanel({ profile, event, categories, users, eventGue
             currentUserId={profile.id}
             eventGuests={eventGuests}
             eventId={event?.id || ''}
+            itemCounts={itemCounts}
           />
         )}
       </div>

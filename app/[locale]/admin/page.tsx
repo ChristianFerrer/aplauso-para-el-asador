@@ -45,12 +45,22 @@ export default async function AdminPage({ params }: Props) {
 
   const eventId = (eventRes.data as Event | null)?.id || ''
   let eventGuests: EventGuest[] = []
+  let itemCounts: Record<string, number> = {}
   if (eventId) {
-    const { data } = await supabase
-      .from('event_guests')
-      .select('*')
-      .eq('event_id', eventId)
-    eventGuests = (data || []) as EventGuest[]
+    const [guestsRes, itemCountsRes] = await Promise.all([
+      supabase.from('event_guests').select('*').eq('event_id', eventId),
+      supabase
+        .from('list_items')
+        .select('user_id')
+        .in(
+          'category_id',
+          (await supabase.from('categories').select('id').eq('event_id', eventId)).data?.map(c => c.id) || []
+        ),
+    ])
+    eventGuests = (guestsRes.data || []) as EventGuest[]
+    for (const row of (itemCountsRes.data || [])) {
+      if (row.user_id) itemCounts[row.user_id] = (itemCounts[row.user_id] || 0) + 1
+    }
   }
 
   return (
@@ -63,6 +73,7 @@ export default async function AdminPage({ params }: Props) {
           categories={(categoriesRes.data || []) as Category[]}
           users={(usersRes.data || []) as Profile[]}
           eventGuests={eventGuests}
+          itemCounts={itemCounts}
           locale={locale}
         />
       </main>

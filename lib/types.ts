@@ -4,6 +4,7 @@ export type AttendanceStatus = 'arrived' | 'on_way' | 'not_going' | 'pending'
 export interface Profile {
   id: string
   name: string
+  email: string | null
   avatar_url: string | null
   role: Role
   is_placeholder: boolean
