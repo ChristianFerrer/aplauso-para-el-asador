@@ -6,6 +6,8 @@ export interface Profile {
   name: string
   avatar_url: string | null
   role: Role
+  is_placeholder: boolean
+  identity_claimed: boolean
   created_at: string
   updated_at: string
 }

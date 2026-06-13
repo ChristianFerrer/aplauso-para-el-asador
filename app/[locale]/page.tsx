@@ -4,6 +4,7 @@ import Navbar from '@/components/Navbar'
 import EventCard from '@/components/home/EventCard'
 import AttendanceKanban from '@/components/home/AttendanceKanban'
 import ListCarousel from '@/components/home/ListCarousel'
+import IdentityPicker from '@/components/home/IdentityPicker'
 import { Event, EventGuest, Profile, Category, ListItem } from '@/lib/types'
 
 type Props = {
@@ -45,18 +46,20 @@ export default async function HomePage({ params, searchParams }: Props) {
   }
 
   const event = eventRes.data as Event | null
+  const isAdmin = profile?.role === 'admin'
 
   let guests: EventGuest[] = []
   let categories: Category[] = []
+  let unclaimedPlaceholders: { id: string; name: string }[] = []
 
   if (event) {
-    // Auto-enroll current user into this event if not already present
+    // Auto-enroll current user if not already in this event
     await supabase.from('event_guests').upsert(
       { event_id: event.id, user_id: user.id, status: 'pending', updated_at: new Date().toISOString() },
       { onConflict: 'event_id,user_id', ignoreDuplicates: true }
     )
 
-    const [guestsRes, catsRes] = await Promise.all([
+    const [guestsRes, catsRes, placeholdersRes] = await Promise.all([
       supabase
         .from('event_guests')
         .select('*, profile:profiles(*)')
@@ -67,9 +70,17 @@ export default async function HomePage({ params, searchParams }: Props) {
         .select('*')
         .eq('event_id', event.id)
         .order('sort_order', { ascending: true }),
+      // Fetch unclaimed placeholder names for the identity picker
+      supabase
+        .from('profiles')
+        .select('id, name')
+        .eq('is_placeholder', true)
+        .eq('identity_claimed', false)
+        .order('name'),
     ])
 
     guests = (guestsRes.data || []) as EventGuest[]
+    unclaimedPlaceholders = (placeholdersRes.data || []) as { id: string; name: string }[]
 
     const cats = (catsRes.data || []) as Category[]
     if (cats.length > 0) {
@@ -86,6 +97,9 @@ export default async function HomePage({ params, searchParams }: Props) {
     }
   }
 
+  // Show identity picker for new users who haven't claimed a name yet
+  const showPicker = !profile?.identity_claimed && unclaimedPlaceholders.length > 0
+
   return (
     <div className="min-h-screen bg-stone-50">
       <Navbar locale={locale} profile={profile} />
@@ -99,7 +113,12 @@ export default async function HomePage({ params, searchParams }: Props) {
               eventId={event.id}
               userId={user.id}
             />
-            <ListCarousel categories={categories} userId={user.id} />
+            <ListCarousel
+              categories={categories}
+              userId={user.id}
+              isAdmin={isAdmin}
+              eventId={event.id}
+            />
           </>
         ) : (
           <div className="bg-white rounded-2xl border border-stone-200 p-12 text-center">
@@ -107,6 +126,11 @@ export default async function HomePage({ params, searchParams }: Props) {
           </div>
         )}
       </main>
+
+      {/* Identity picker — shown once to new users */}
+      {showPicker && (
+        <IdentityPicker initialPlaceholders={unclaimedPlaceholders} />
+      )}
     </div>
   )
 }

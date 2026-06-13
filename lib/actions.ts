@@ -43,6 +43,52 @@ export async function deleteListItem(itemId: string) {
   return { success: true }
 }
 
+export async function claimIdentity(placeholderProfileId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'No autenticado' }
+  const { error } = await supabase.rpc('claim_identity', { placeholder_profile_id: placeholderProfileId })
+  if (error) return { error: error.message }
+  revalidatePath('/es')
+  revalidatePath('/en')
+  return { success: true }
+}
+
+export async function skipIdentityClaim() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'No autenticado' }
+  const { error } = await supabase.from('profiles').update({ identity_claimed: true }).eq('id', user.id)
+  if (error) return { error: error.message }
+  revalidatePath('/es')
+  revalidatePath('/en')
+  return { success: true }
+}
+
+export async function addCategory(eventId: string, name: string, icon: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'No autenticado' }
+  const { data: last } = await supabase
+    .from('categories').select('sort_order').eq('event_id', eventId)
+    .order('sort_order', { ascending: false }).limit(1)
+  const nextOrder = last && last.length > 0 ? last[0].sort_order + 1 : 0
+  const { error } = await supabase.from('categories').insert({ event_id: eventId, name, icon, sort_order: nextOrder })
+  if (error) return { error: error.message }
+  revalidatePath('/es'); revalidatePath('/en')
+  revalidatePath('/es/lista'); revalidatePath('/en/lista')
+  return { success: true }
+}
+
+export async function deleteCategory(categoryId: string) {
+  const supabase = await createClient()
+  const { error } = await supabase.from('categories').delete().eq('id', categoryId)
+  if (error) return { error: error.message }
+  revalidatePath('/es'); revalidatePath('/en')
+  revalidatePath('/es/lista'); revalidatePath('/en/lista')
+  return { success: true }
+}
+
 export async function updatePlusOnes(eventId: string, userId: string, plusOnes: number) {
   const supabase = await createClient()
   const { error } = await supabase
