@@ -14,7 +14,10 @@ interface Props {
 type Column = {
   id: AttendanceStatus
   label: string
-  activeHeader: string
+  headerActive: string
+  headerIdle: string
+  cardClass: string
+  myCardClass: string
   dropRing: string
 }
 
@@ -22,25 +25,37 @@ const COLUMNS: Column[] = [
   {
     id: 'pending',
     label: 'Pendiente',
-    activeHeader: 'bg-stone-500 text-white',
+    headerActive: 'bg-stone-500 text-white',
+    headerIdle: 'bg-stone-100 text-stone-500 hover:bg-stone-200',
+    cardClass: 'bg-stone-200 text-stone-700',
+    myCardClass: 'bg-stone-600 text-white',
     dropRing: 'ring-2 ring-stone-400 bg-stone-50',
   },
   {
     id: 'on_way',
     label: 'En Camino',
-    activeHeader: 'bg-yellow-500 text-white',
+    headerActive: 'bg-yellow-500 text-white',
+    headerIdle: 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200',
+    cardClass: 'bg-yellow-200 text-yellow-900',
+    myCardClass: 'bg-yellow-500 text-white',
     dropRing: 'ring-2 ring-yellow-400 bg-yellow-50',
   },
   {
     id: 'arrived',
     label: 'Llegué',
-    activeHeader: 'bg-teal-600 text-white',
-    dropRing: 'ring-2 ring-teal-400 bg-teal-50',
+    headerActive: 'bg-green-600 text-white',
+    headerIdle: 'bg-green-100 text-green-700 hover:bg-green-200',
+    cardClass: 'bg-green-200 text-green-900',
+    myCardClass: 'bg-green-600 text-white',
+    dropRing: 'ring-2 ring-green-400 bg-green-50',
   },
   {
     id: 'not_going',
     label: 'No voy',
-    activeHeader: 'bg-red-500 text-white',
+    headerActive: 'bg-red-500 text-white',
+    headerIdle: 'bg-red-100 text-red-700 hover:bg-red-200',
+    cardClass: 'bg-red-200 text-red-900',
+    myCardClass: 'bg-red-500 text-white',
     dropRing: 'ring-2 ring-red-400 bg-red-50',
   },
 ]
@@ -87,8 +102,7 @@ export default function AttendanceKanban({ guests: initialGuests, userId, eventI
 
   return (
     <div className="bg-white rounded-2xl border border-stone-200 p-4">
-      {/* 4-column grid */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-4 gap-2">
         {COLUMNS.map(col => {
           const colGuests = guests.filter(g => g.status === col.id)
           const isTarget = isDragging && dragOverCol === col.id && col.id !== myStatus
@@ -100,25 +114,23 @@ export default function AttendanceKanban({ guests: initialGuests, userId, eventI
               onDragLeave={() => setDragOverCol(null)}
               onDrop={e => onDrop(e, col.id)}
               className={cn(
-                'flex flex-col gap-2 rounded-xl p-2 min-h-[80px] transition-all duration-150',
+                'flex flex-col gap-1.5 rounded-xl p-2 min-h-[90px] transition-all duration-150',
                 isTarget ? col.dropRing : ''
               )}
             >
-              {/* Column header */}
+              {/* Column header — also a tap-to-move button */}
               <button
                 onClick={() => moveCard(col.id)}
                 disabled={myStatus === col.id || isPending}
                 className={cn(
-                  'w-full rounded-lg px-2 py-1.5 text-xs font-semibold text-center transition-all',
-                  myStatus === col.id
-                    ? col.activeHeader
-                    : 'bg-stone-100 text-stone-500 hover:bg-stone-200 disabled:cursor-default'
+                  'w-full rounded-lg px-2 py-1.5 text-xs font-semibold text-center transition-all disabled:cursor-default',
+                  myStatus === col.id ? col.headerActive : col.headerIdle
                 )}
               >
                 {col.label}
               </button>
 
-              {/* Cards */}
+              {/* Guest cards */}
               {colGuests.map(guest => {
                 const isMe = guest.user_id === userId
                 const name = guest.profile?.name || '?'
@@ -129,12 +141,12 @@ export default function AttendanceKanban({ guests: initialGuests, userId, eventI
                     draggable={isMe}
                     onDragStart={isMe ? onDragStart : undefined}
                     onDragEnd={isMe ? onDragEnd : undefined}
-                    title={isMe ? 'Arrastrá para cambiar tu estado' : name}
+                    title={isMe ? 'Arrastrá para cambiar tu estado' : undefined}
                     className={cn(
-                      'rounded-lg px-2.5 py-2 text-xs font-medium select-none transition-all truncate',
+                      'rounded-lg px-2.5 py-1.5 text-xs font-medium select-none transition-all truncate',
                       isMe
-                        ? 'bg-teal-700 text-white cursor-grab active:cursor-grabbing shadow-sm active:scale-95'
-                        : 'bg-stone-100 text-stone-600 cursor-default'
+                        ? cn(col.myCardClass, 'cursor-grab active:cursor-grabbing shadow-sm ring-2 ring-white/40 ring-offset-1 active:scale-95')
+                        : cn(col.cardClass, 'cursor-default')
                     )}
                   >
                     {name}
@@ -144,7 +156,7 @@ export default function AttendanceKanban({ guests: initialGuests, userId, eventI
 
               {/* Drop hint */}
               {isTarget && (
-                <div className="rounded-lg border-2 border-dashed border-stone-300 h-8 flex items-center justify-center">
+                <div className="rounded-lg border-2 border-dashed border-stone-300 h-7 flex items-center justify-center">
                   <span className="text-[10px] text-stone-400 font-medium">Soltar aquí</span>
                 </div>
               )}
