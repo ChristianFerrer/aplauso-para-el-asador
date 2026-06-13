@@ -1,12 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
 import { useTranslations } from 'next-intl'
 import { CheckCircle, Clock, XCircle } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
+import { updateAttendance } from '@/lib/actions'
 import { EventGuest, AttendanceStatus } from '@/lib/types'
 import { cn } from '@/lib/utils'
-import { useRouter } from 'next/navigation'
 
 interface Props {
   guests: EventGuest[]
@@ -16,11 +15,10 @@ interface Props {
   locale: string
 }
 
-export default function AttendanceBar({ guests, myGuest, eventId, userId, locale }: Props) {
+export default function AttendanceBar({ guests, myGuest, eventId, userId }: Props) {
   const t = useTranslations('home')
-  const router = useRouter()
   const [status, setStatus] = useState<AttendanceStatus>(myGuest?.status || 'pending')
-  const [saving, setSaving] = useState(false)
+  const [isPending, startTransition] = useTransition()
 
   const counts = {
     arrived: guests.filter(g => g.status === 'arrived').length,
@@ -29,58 +27,56 @@ export default function AttendanceBar({ guests, myGuest, eventId, userId, locale
     pending: guests.filter(g => g.status === 'pending').length,
   }
 
-  async function updateStatus(newStatus: AttendanceStatus) {
-    setSaving(true)
+  function handleStatus(newStatus: AttendanceStatus) {
     setStatus(newStatus)
-    const supabase = createClient()
-    await supabase.from('event_guests').upsert({
-      event_id: eventId,
-      user_id: userId,
-      status: newStatus,
-      updated_at: new Date().toISOString(),
-    }, { onConflict: 'event_id,user_id' })
-    setSaving(false)
-    router.refresh()
+    startTransition(async () => {
+      await updateAttendance(eventId, userId, newStatus)
+    })
   }
 
-  const options: { value: AttendanceStatus; label: string; icon: React.ReactNode; color: string; activeColor: string }[] = [
+  const options: {
+    value: AttendanceStatus
+    label: string
+    icon: React.ReactNode
+    inactive: string
+    active: string
+  }[] = [
     {
       value: 'arrived',
       label: t('arrived'),
       icon: <CheckCircle className="w-4 h-4" strokeWidth={1.5} />,
-      color: 'border-green-200 text-green-700 hover:bg-green-50',
-      activeColor: 'bg-green-500 border-green-500 text-white',
+      inactive: 'border-green-200 text-green-700 hover:bg-green-50',
+      active: 'bg-green-500 border-green-500 text-white',
     },
     {
       value: 'on_way',
       label: t('onWay'),
       icon: <Clock className="w-4 h-4" strokeWidth={1.5} />,
-      color: 'border-yellow-200 text-yellow-700 hover:bg-yellow-50',
-      activeColor: 'bg-yellow-500 border-yellow-500 text-white',
+      inactive: 'border-yellow-200 text-yellow-700 hover:bg-yellow-50',
+      active: 'bg-yellow-500 border-yellow-500 text-white',
     },
     {
       value: 'not_going',
       label: t('notGoing'),
       icon: <XCircle className="w-4 h-4" strokeWidth={1.5} />,
-      color: 'border-red-200 text-red-700 hover:bg-red-50',
-      activeColor: 'bg-red-500 border-red-500 text-white',
+      inactive: 'border-red-200 text-red-700 hover:bg-red-50',
+      active: 'bg-red-500 border-red-500 text-white',
     },
   ]
 
   return (
-    <div className="bg-white rounded-2xl border border-stone-200 p-5">
+    <div className="bg-white rounded-2xl border border-stone-200 p-4">
       <p className="text-sm font-semibold text-stone-700 mb-3">{t('myStatus')}</p>
 
-      {/* Status buttons */}
-      <div className="flex flex-wrap gap-2 mb-4">
+      <div className="flex flex-wrap gap-2 mb-3">
         {options.map(opt => (
           <button
             key={opt.value}
-            onClick={() => updateStatus(opt.value)}
-            disabled={saving}
+            onClick={() => handleStatus(opt.value)}
+            disabled={isPending}
             className={cn(
-              'flex items-center gap-1.5 px-4 py-2 rounded-xl border text-sm font-medium transition-colors',
-              status === opt.value ? opt.activeColor : opt.color
+              'flex items-center gap-1.5 px-4 py-2 rounded-xl border text-sm font-medium transition-colors disabled:opacity-60',
+              status === opt.value ? opt.active : opt.inactive
             )}
           >
             {opt.icon}
@@ -89,7 +85,6 @@ export default function AttendanceBar({ guests, myGuest, eventId, userId, locale
         ))}
       </div>
 
-      {/* Summary pills */}
       <div className="flex flex-wrap gap-2 text-xs">
         <span className="flex items-center gap-1 bg-green-50 text-green-700 px-2.5 py-1 rounded-full">
           <CheckCircle className="w-3 h-3" strokeWidth={1.5} />

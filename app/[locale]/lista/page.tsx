@@ -33,11 +33,10 @@ export default async function ListaPage({ params }: Props) {
       .order('sort_order', { ascending: true })
 
     if (cats && cats.length > 0) {
-      const categoryIds = cats.map((c: Category) => c.id)
       const { data: items } = await supabase
         .from('list_items')
         .select('*, profile:profiles(*)')
-        .in('category_id', categoryIds)
+        .in('category_id', cats.map((c: Category) => c.id))
         .order('created_at', { ascending: true })
 
       categories = cats.map((cat: Category) => ({
@@ -50,37 +49,38 @@ export default async function ListaPage({ params }: Props) {
   const totalItems = categories.reduce((sum, c) => sum + (c.items?.length || 0), 0)
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen bg-stone-50 flex flex-col">
       <Navbar locale={locale} profile={profile} />
 
-      <main className="max-w-4xl mx-auto px-4 py-6">
+      <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="px-4 py-4 flex items-center justify-between flex-shrink-0">
           <div>
-            <h1 className="text-xl font-bold text-stone-900">{t('title')}</h1>
-            <p className="text-sm text-stone-500 mt-0.5">
-              {t('total')}: <span className="font-semibold text-brand-600">{totalItems}</span>
-            </p>
+            <h1 className="text-lg font-bold text-stone-900">{t('title')}</h1>
+            <p className="text-xs text-stone-500 mt-0.5">{event?.name}</p>
           </div>
-          <div className="flex items-center gap-2 bg-brand-50 text-brand-700 px-3 py-2 rounded-xl">
+          <div className="flex items-center gap-2 bg-brand-50 text-brand-700 px-3 py-1.5 rounded-xl">
             <Package className="w-4 h-4" strokeWidth={1.5} />
-            <span className="text-sm font-semibold">{totalItems}</span>
+            <span className="text-sm font-bold">{totalItems}</span>
+            <span className="text-xs font-normal hidden sm:block">{t('total')}</span>
           </div>
         </div>
 
-        {/* Categories */}
-        <div className="space-y-4">
-          {categories.map(category => (
-            <CategorySection
-              key={category.id}
-              category={category}
-              userId={user.id}
-              userRole={profile?.role || 'guest'}
-              locale={locale}
-            />
-          ))}
+        {/* Kanban board — horizontal scroll */}
+        <div className="flex-1 overflow-x-auto overflow-y-hidden px-4 pb-4">
+          <div className="flex gap-3 h-full" style={{ minWidth: `${categories.length * 300}px` }}>
+            {categories.map(category => (
+              <div key={category.id} className="w-72 flex-shrink-0 flex flex-col">
+                <CategorySection
+                  category={category}
+                  userId={user.id}
+                  userRole={profile?.role || 'guest'}
+                />
+              </div>
+            ))}
+          </div>
         </div>
-      </main>
+      </div>
     </div>
   )
 }
