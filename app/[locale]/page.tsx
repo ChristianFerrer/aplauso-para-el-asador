@@ -101,7 +101,7 @@ export default async function HomePage({ params, searchParams }: Props) {
   const showPicker = !profile?.identity_claimed && unclaimedPlaceholders.length > 0
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen" style={{ background: 'linear-gradient(160deg, #fff7ed 0%, #fffaf7 40%, #fdf2f8 100%)' }}>
       <Navbar locale={locale} profile={profile} />
 
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-4">
@@ -123,8 +123,9 @@ export default async function HomePage({ params, searchParams }: Props) {
             />
           </>
         ) : (
-          <div className="bg-white rounded-2xl border border-stone-200 p-12 text-center">
-            <p className="text-stone-400 text-sm">No hay evento activo</p>
+          <div className="bg-white/80 rounded-3xl border border-stone-100 p-12 text-center shadow-card">
+            <div className="text-4xl mb-3">🍖</div>
+            <p className="text-stone-400 text-sm font-medium">No hay evento activo</p>
           </div>
         )}
       </main>

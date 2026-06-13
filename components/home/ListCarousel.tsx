@@ -13,6 +13,15 @@ const ICONS = [
   'cheese','coffee','apple','fish','beef','shopping-bag',
 ]
 
+const CATEGORY_COLORS = [
+  'from-orange-400 to-rose-500',
+  'from-amber-400 to-orange-500',
+  'from-emerald-400 to-teal-500',
+  'from-blue-400 to-indigo-500',
+  'from-purple-400 to-pink-500',
+  'from-rose-400 to-red-500',
+]
+
 interface Props {
   categories: Category[]
   userId: string
@@ -22,13 +31,6 @@ interface Props {
 }
 
 export default function ListCarousel({ categories: initialCategories, userId, isAdmin, eventId, guests }: Props) {
-  const guestOptions = guests
-    .filter(g => g.profile?.name)
-    .sort((a, b) => (a.user_id === userId ? -1 : b.user_id === userId ? 1 : 0))
-    .map(g => ({
-      id: g.user_id,
-      name: g.user_id === userId ? `${g.profile!.name} (yo)` : g.profile!.name,
-    }))
   const router = useRouter()
   const [idx, setIdx] = useState(0)
   const [showItemModal, setShowItemModal] = useState(false)
@@ -40,11 +42,20 @@ export default function ListCarousel({ categories: initialCategories, userId, is
   const [, startTransition] = useTransition()
   const [isCatPending, startCatTransition] = useTransition()
 
+  const guestOptions = guests
+    .filter(g => g.profile?.name)
+    .sort((a, b) => (a.user_id === userId ? -1 : b.user_id === userId ? 1 : 0))
+    .map(g => ({
+      id: g.user_id,
+      name: g.user_id === userId ? `${g.profile!.name} (yo)` : g.profile!.name,
+    }))
+
   if (initialCategories.length === 0 && !isAdmin) return null
 
   const cat = initialCategories[idx] ?? null
   const items = cat?.items || []
   const total = initialCategories.reduce((s, c) => s + (c.items?.length || 0), 0)
+  const catColor = CATEGORY_COLORS[idx % CATEGORY_COLORS.length]
 
   function handleDeleteItem(itemId: string) {
     setDeleting(itemId)
@@ -77,26 +88,33 @@ export default function ListCarousel({ categories: initialCategories, userId, is
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-stone-200 p-4">
+    <div className="bg-white rounded-3xl shadow-card-md border border-stone-100 p-5">
       {/* Header */}
-      <div className="flex items-center gap-2 mb-3">
-        <Package className="w-4 h-4 text-brand-500" strokeWidth={1.5} />
-        <span className="text-sm font-semibold text-stone-700">Lista · {total} items</span>
-        <div className="ml-auto flex items-center gap-1">
+      <div className="flex items-center gap-2.5 mb-4">
+        <div className="w-8 h-8 bg-gradient-to-br from-amber-100 to-orange-100 rounded-xl flex items-center justify-center">
+          <Package className="w-4 h-4 text-orange-500" strokeWidth={1.5} />
+        </div>
+        <div className="flex-1">
+          <span className="font-display font-bold text-stone-800 text-sm">Lista de items</span>
+          <span className="ml-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+            {total}
+          </span>
+        </div>
+        <div className="flex items-center gap-1">
           <button
             onClick={() => setIdx(i => Math.max(0, i - 1))}
             disabled={idx === 0 || initialCategories.length === 0}
-            className="p-1 rounded-lg text-stone-400 hover:text-stone-600 disabled:opacity-30 transition-colors"
+            className="w-7 h-7 rounded-lg bg-stone-100 hover:bg-stone-200 flex items-center justify-center text-stone-500 disabled:opacity-30 transition-colors"
           >
             <ChevronLeft className="w-4 h-4" strokeWidth={2} />
           </button>
-          <span className="text-xs text-stone-400 w-10 text-center">
+          <span className="text-xs text-stone-400 w-10 text-center font-medium">
             {initialCategories.length > 0 ? `${idx + 1}/${initialCategories.length}` : '0/0'}
           </span>
           <button
             onClick={() => setIdx(i => Math.min(initialCategories.length - 1, i + 1))}
             disabled={idx >= initialCategories.length - 1}
-            className="p-1 rounded-lg text-stone-400 hover:text-stone-600 disabled:opacity-30 transition-colors"
+            className="w-7 h-7 rounded-lg bg-stone-100 hover:bg-stone-200 flex items-center justify-center text-stone-500 disabled:opacity-30 transition-colors"
           >
             <ChevronRight className="w-4 h-4" strokeWidth={2} />
           </button>
@@ -104,87 +122,86 @@ export default function ListCarousel({ categories: initialCategories, userId, is
       </div>
 
       {/* Category tabs */}
-      <div className="flex gap-1.5 overflow-x-auto pb-2 mb-3 items-center" style={{ scrollbarWidth: 'none' }}>
-        {initialCategories.map((c, i) => (
-          <div key={c.id} className="flex items-center flex-shrink-0">
-            <button
-              onClick={() => { setIdx(i); setConfirmCatDelete(null) }}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
-                i === idx
-                  ? 'bg-brand-500 text-white'
-                  : 'bg-stone-100 text-stone-500 hover:bg-stone-200'
-              }`}
-            >
-              <CategoryIcon name={c.icon} className="w-3 h-3" />
-              {c.name}
-              <span className={i === idx ? 'opacity-70' : 'opacity-50'}>({c.items?.length || 0})</span>
-            </button>
+      <div className="flex gap-1.5 overflow-x-auto pb-2 mb-4 items-center" style={{ scrollbarWidth: 'none' }}>
+        {initialCategories.map((c, i) => {
+          const color = CATEGORY_COLORS[i % CATEGORY_COLORS.length]
+          return (
+            <div key={c.id} className="flex items-center flex-shrink-0">
+              <button
+                onClick={() => { setIdx(i); setConfirmCatDelete(null) }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
+                  i === idx
+                    ? `bg-gradient-to-r ${color} text-white shadow-sm`
+                    : 'bg-stone-100 text-stone-500 hover:bg-stone-200'
+                }`}
+              >
+                <CategoryIcon name={c.icon} className="w-3 h-3" />
+                {c.name}
+                <span className={i === idx ? 'opacity-75' : 'opacity-50'}>({c.items?.length || 0})</span>
+              </button>
 
-            {/* Admin: delete category */}
-            {isAdmin && i === idx && (
-              confirmCatDelete === c.id ? (
-                <div className="flex items-center gap-1 ml-1">
+              {isAdmin && i === idx && (
+                confirmCatDelete === c.id ? (
+                  <div className="flex items-center gap-1 ml-1">
+                    <button
+                      onClick={() => handleDeleteCategory(c.id)}
+                      disabled={isCatPending}
+                      className="w-5 h-5 rounded-full bg-rose-500 text-white flex items-center justify-center"
+                    >
+                      <Check className="w-3 h-3" strokeWidth={2.5} />
+                    </button>
+                    <button
+                      onClick={() => setConfirmCatDelete(null)}
+                      className="w-5 h-5 rounded-full bg-stone-200 text-stone-600 flex items-center justify-center"
+                    >
+                      <X className="w-3 h-3" strokeWidth={2.5} />
+                    </button>
+                  </div>
+                ) : (
                   <button
-                    onClick={() => handleDeleteCategory(c.id)}
-                    disabled={isCatPending}
-                    className="w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center"
+                    onClick={() => setConfirmCatDelete(c.id)}
+                    className="ml-1 p-1 text-stone-300 hover:text-rose-400 transition-colors"
                   >
-                    <Check className="w-3 h-3" strokeWidth={2.5} />
+                    <Trash2 className="w-3 h-3" strokeWidth={1.5} />
                   </button>
-                  <button
-                    onClick={() => setConfirmCatDelete(null)}
-                    className="w-5 h-5 rounded-full bg-stone-200 text-stone-600 flex items-center justify-center"
-                  >
-                    <X className="w-3 h-3" strokeWidth={2.5} />
-                  </button>
-                </div>
-              ) : (
-                <button
-                  onClick={() => setConfirmCatDelete(c.id)}
-                  className="ml-1 p-1 text-stone-300 hover:text-red-400 transition-colors"
-                  title="Eliminar categoría"
-                >
-                  <Trash2 className="w-3 h-3" strokeWidth={1.5} />
-                </button>
-              )
-            )}
-          </div>
-        ))}
+                )
+              )}
+            </div>
+          )
+        })}
 
-        {/* Admin: add category button */}
         {isAdmin && (
           <button
             onClick={() => setShowAddCat(v => !v)}
-            className="flex-shrink-0 w-7 h-7 rounded-full bg-brand-50 border border-brand-200 text-brand-500 hover:bg-brand-100 flex items-center justify-center transition-colors"
-            title="Nueva categoría"
+            className="flex-shrink-0 w-7 h-7 rounded-full bg-gradient-to-br from-orange-100 to-rose-100 border border-orange-200 text-orange-500 hover:from-orange-200 hover:to-rose-200 flex items-center justify-center transition-colors"
           >
             <Plus className="w-3.5 h-3.5" strokeWidth={2} />
           </button>
         )}
       </div>
 
-      {/* Add category form (admin) */}
+      {/* Add category form */}
       {showAddCat && isAdmin && (
-        <form onSubmit={handleAddCategory} className="mb-3 p-3 bg-stone-50 rounded-xl border border-stone-200">
-          <p className="text-xs font-semibold text-stone-600 mb-2">Nueva categoría</p>
+        <form onSubmit={handleAddCategory} className="mb-4 p-4 bg-gradient-to-br from-orange-50 to-rose-50 rounded-2xl border border-orange-100">
+          <p className="text-xs font-bold text-stone-700 mb-2.5">Nueva categoría</p>
           <input
             type="text"
             value={newCatName}
             onChange={e => setNewCatName(e.target.value)}
             placeholder="Nombre de la categoría"
             autoFocus
-            className="w-full px-3 py-2 text-sm border border-stone-300 rounded-lg mb-2 focus:outline-none focus:ring-2 focus:ring-brand-500"
+            className="w-full px-3 py-2 text-sm border-2 border-orange-200 rounded-xl mb-2.5 focus:outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10 bg-white"
           />
-          <div className="flex flex-wrap gap-1.5 mb-2">
+          <div className="flex flex-wrap gap-1.5 mb-2.5">
             {ICONS.map(icon => (
               <button
                 key={icon}
                 type="button"
                 onClick={() => setNewCatIcon(icon)}
-                className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${
                   newCatIcon === icon
-                    ? 'bg-brand-500 text-white'
-                    : 'bg-white border border-stone-200 text-stone-500 hover:border-brand-300'
+                    ? 'bg-gradient-to-br from-orange-500 to-rose-500 text-white shadow-sm'
+                    : 'bg-white border border-stone-200 text-stone-500 hover:border-orange-300'
                 }`}
               >
                 <CategoryIcon name={icon} className="w-4 h-4" />
@@ -195,14 +212,14 @@ export default function ListCarousel({ categories: initialCategories, userId, is
             <button
               type="button"
               onClick={() => setShowAddCat(false)}
-              className="flex-1 py-1.5 text-xs border border-stone-200 rounded-lg text-stone-500 hover:bg-stone-50"
+              className="flex-1 py-2 text-xs border border-stone-200 rounded-xl text-stone-500 hover:bg-white font-medium"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={!newCatName.trim() || isCatPending}
-              className="flex-1 py-1.5 text-xs bg-brand-500 text-white rounded-lg font-semibold hover:bg-brand-600 disabled:opacity-50"
+              className="flex-1 py-2 text-xs bg-gradient-to-r from-orange-500 to-rose-500 text-white rounded-xl font-bold disabled:opacity-50 shadow-sm"
             >
               {isCatPending ? '...' : 'Agregar'}
             </button>
@@ -210,40 +227,47 @@ export default function ListCarousel({ categories: initialCategories, userId, is
         </form>
       )}
 
-      {/* Items — stacked cards */}
-      <div className="space-y-1.5 min-h-[60px]">
+      {/* Items */}
+      <div className="space-y-2 min-h-[60px]">
         {!cat ? (
-          <p className="text-xs text-stone-400 text-center py-6">
-            {isAdmin ? 'Creá la primera categoría con el botón +' : 'Sin categorías aún'}
-          </p>
+          <div className="text-center py-8">
+            <div className="text-3xl mb-2">📦</div>
+            <p className="text-xs text-stone-400 font-medium">
+              {isAdmin ? 'Creá la primera categoría con el botón +' : 'Sin categorías aún'}
+            </p>
+          </div>
         ) : items.length === 0 ? (
-          <p className="text-xs text-stone-400 text-center py-6">Sin items — ¡agregá el primero!</p>
+          <div className="text-center py-8">
+            <div className="text-3xl mb-2">✨</div>
+            <p className="text-xs text-stone-400 font-medium">¡Sé el primero en agregar algo!</p>
+          </div>
         ) : (
           items.map((item: ListItem) => {
             const isOwn = item.user_id === userId
+            const firstName = item.profile?.name?.split(' ')[0] || ''
             return (
               <div
                 key={item.id}
-                className="group flex items-center gap-2 px-3 py-2.5 rounded-xl bg-stone-50 border border-stone-100 shadow-sm hover:shadow transition-shadow"
+                className="group flex items-center gap-3 px-3.5 py-2.5 rounded-2xl bg-stone-50 hover:bg-stone-100/80 border border-stone-100 transition-all"
               >
                 <div className="flex-1 min-w-0">
-                  <span className="text-sm font-medium text-stone-800">{item.item_name}</span>
+                  <span className="text-sm font-semibold text-stone-800">{item.item_name}</span>
                   {(item.quantity > 1 || item.unit) && (
                     <span className="text-xs text-stone-400 ml-1.5">
                       ×{item.quantity}{item.unit ? ` ${item.unit}` : ''}
                     </span>
                   )}
                 </div>
-                {item.profile?.name && (
-                  <span className="flex-shrink-0 text-[10px] font-semibold px-2 py-0.5 bg-brand-50 text-brand-600 rounded-full border border-brand-100">
-                    {item.profile.name.split(' ')[0]}
+                {firstName && (
+                  <span className={`flex-shrink-0 text-[10px] font-bold px-2.5 py-1 bg-gradient-to-r ${catColor} text-white rounded-full shadow-sm`}>
+                    {firstName}
                   </span>
                 )}
                 {isOwn && (
                   <button
                     onClick={() => handleDeleteItem(item.id)}
                     disabled={deleting === item.id}
-                    className="opacity-0 group-hover:opacity-100 p-1 text-stone-300 hover:text-red-500 transition-all rounded-lg flex-shrink-0 disabled:opacity-30"
+                    className="opacity-0 group-hover:opacity-100 p-1 text-stone-300 hover:text-rose-500 transition-all rounded-lg flex-shrink-0 disabled:opacity-30"
                   >
                     <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />
                   </button>
@@ -254,26 +278,28 @@ export default function ListCarousel({ categories: initialCategories, userId, is
         )}
       </div>
 
-      {/* Add item button */}
+      {/* Add item */}
       {cat && (
         <button
           onClick={() => setShowItemModal(true)}
-          className="mt-3 w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-medium text-brand-600 hover:bg-brand-50 border border-dashed border-brand-200 transition-colors"
+          className={`mt-4 w-full flex items-center justify-center gap-2 py-2.5 rounded-2xl text-sm font-bold bg-gradient-to-r ${catColor} text-white shadow-sm hover:opacity-90 transition-opacity`}
         >
-          <Plus className="w-4 h-4" strokeWidth={1.5} />
+          <Plus className="w-4 h-4" strokeWidth={2} />
           Agregar a {cat.name}
         </button>
       )}
 
       {/* Dot navigation */}
       {initialCategories.length > 1 && (
-        <div className="flex justify-center gap-1.5 mt-3">
+        <div className="flex justify-center gap-1.5 mt-4">
           {initialCategories.map((_, i) => (
             <button
               key={i}
               onClick={() => setIdx(i)}
               className={`rounded-full transition-all duration-200 ${
-                i === idx ? 'w-5 h-1.5 bg-brand-500' : 'w-1.5 h-1.5 bg-stone-200 hover:bg-stone-300'
+                i === idx
+                  ? 'w-6 h-1.5 bg-gradient-to-r from-orange-500 to-rose-500'
+                  : 'w-1.5 h-1.5 bg-stone-200 hover:bg-stone-300'
               }`}
             />
           ))}

@@ -33,19 +33,19 @@ export default function AdminPanel({ profile, event, categories, users, eventGue
 
   return (
     <div>
-      <h1 className="text-xl font-bold text-stone-900 mb-6">{t('title')}</h1>
+      <h1 className="font-display text-2xl font-bold text-stone-900 mb-6">{t('title')}</h1>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-stone-100 p-1 rounded-xl mb-6">
+      <div className="flex gap-1.5 bg-stone-100/80 p-1.5 rounded-2xl mb-6">
         {tabs.map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={cn(
-              'flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-sm font-medium transition-colors',
+              'flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-sm font-semibold transition-all',
               activeTab === tab.id
-                ? 'bg-white text-stone-900 shadow-sm'
-                : 'text-stone-500 hover:text-stone-700'
+                ? 'bg-gradient-to-r from-orange-500 to-rose-500 text-white shadow-brand'
+                : 'text-stone-500 hover:text-stone-800 hover:bg-stone-200/50'
             )}
           >
             {tab.icon}

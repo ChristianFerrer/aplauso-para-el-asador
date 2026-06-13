@@ -49,7 +49,7 @@ export default async function ListaPage({ params }: Props) {
   const totalItems = categories.reduce((sum, c) => sum + (c.items?.length || 0), 0)
 
   return (
-    <div className="min-h-screen bg-stone-50 flex flex-col">
+    <div className="min-h-screen flex flex-col" style={{ background: 'linear-gradient(160deg, #fff7ed 0%, #fffaf7 40%, #fdf2f8 100%)' }}>
       <Navbar locale={locale} profile={profile} />
 
       <div className="flex-1 flex flex-col overflow-hidden">
@@ -59,10 +59,10 @@ export default async function ListaPage({ params }: Props) {
             <h1 className="text-lg font-bold text-stone-900">{t('title')}</h1>
             <p className="text-xs text-stone-500 mt-0.5">{event?.name}</p>
           </div>
-          <div className="flex items-center gap-2 bg-brand-50 text-brand-700 px-3 py-1.5 rounded-xl">
+          <div className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white px-4 py-2 rounded-2xl shadow-brand">
             <Package className="w-4 h-4" strokeWidth={1.5} />
             <span className="text-sm font-bold">{totalItems}</span>
-            <span className="text-xs font-normal hidden sm:block">{t('total')}</span>
+            <span className="text-xs font-medium hidden sm:block">{t('total')}</span>
           </div>
         </div>
 

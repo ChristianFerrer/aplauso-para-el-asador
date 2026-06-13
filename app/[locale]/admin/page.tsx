@@ -64,7 +64,7 @@ export default async function AdminPage({ params }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen" style={{ background: 'linear-gradient(160deg, #fff7ed 0%, #fffaf7 40%, #fdf2f8 100%)' }}>
       <Navbar locale={locale} profile={profile as Profile} />
       <main className="max-w-4xl mx-auto px-4 py-6">
         <AdminPanel
