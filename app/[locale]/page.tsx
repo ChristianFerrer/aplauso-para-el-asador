@@ -3,8 +3,7 @@ import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import Navbar from '@/components/Navbar'
 import EventCard from '@/components/home/EventCard'
-import GuestList from '@/components/home/GuestList'
-import AttendanceBar from '@/components/home/AttendanceBar'
+import AttendanceKanban from '@/components/home/AttendanceKanban'
 import { Event, EventGuest, Profile } from '@/lib/types'
 
 type Props = {
@@ -69,14 +68,11 @@ export default async function HomePage({ params, searchParams }: Props) {
         {event ? (
           <>
             <EventCard event={event} locale={locale} />
-            <AttendanceBar
+            <AttendanceKanban
               guests={guests}
-              myGuest={myGuest || null}
               eventId={event.id}
               userId={user.id}
-              locale={locale}
             />
-            <GuestList guests={guests} />
           </>
         ) : (
           <div className="bg-white rounded-2xl border border-stone-200 p-12 text-center">
