@@ -7,10 +7,21 @@ import GuestList from '@/components/home/GuestList'
 import AttendanceBar from '@/components/home/AttendanceBar'
 import { Event, EventGuest, Profile } from '@/lib/types'
 
-type Props = { params: Promise<{ locale: string }> }
+type Props = {
+  params: Promise<{ locale: string }>
+  searchParams: Promise<{ code?: string; error?: string }>
+}
 
-export default async function HomePage({ params }: Props) {
+export default async function HomePage({ params, searchParams }: Props) {
   const { locale } = await params
+  const { code } = await searchParams
+
+  // OAuth callback lands here when Supabase redirect URL isn't whitelisted.
+  // Forward the code to the proper callback handler.
+  if (code) {
+    redirect(`/api/auth/callback?code=${code}&next=/${locale}`)
+  }
+
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
