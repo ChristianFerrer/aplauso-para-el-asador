@@ -23,8 +23,12 @@ interface Props {
 
 export default function ListCarousel({ categories: initialCategories, userId, isAdmin, eventId, guests }: Props) {
   const guestOptions = guests
-    .filter(g => g.user_id !== userId && g.profile?.name)
-    .map(g => ({ id: g.user_id, name: g.profile!.name }))
+    .filter(g => g.profile?.name)
+    .sort((a, b) => (a.user_id === userId ? -1 : b.user_id === userId ? 1 : 0))
+    .map(g => ({
+      id: g.user_id,
+      name: g.user_id === userId ? `${g.profile!.name} (yo)` : g.profile!.name,
+    }))
   const router = useRouter()
   const [idx, setIdx] = useState(0)
   const [showItemModal, setShowItemModal] = useState(false)
@@ -283,6 +287,7 @@ export default function ListCarousel({ categories: initialCategories, userId, is
           onAdded={() => { setShowItemModal(false); router.refresh() }}
           isAdmin={isAdmin}
           guestOptions={isAdmin ? guestOptions : undefined}
+          defaultUserId={isAdmin ? userId : undefined}
         />
       )}
     </div>

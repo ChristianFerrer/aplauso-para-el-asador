@@ -14,18 +14,19 @@ interface Props {
   onAdded: () => void
   isAdmin?: boolean
   guestOptions?: GuestOption[]
+  defaultUserId?: string
 }
 
 const UNITS = ['kg', 'g', 'L', 'ml', 'unidades', 'botellas', 'packs']
 
-export default function AddItemModal({ categoryId, onClose, onAdded, isAdmin, guestOptions }: Props) {
+export default function AddItemModal({ categoryId, onClose, onAdded, isAdmin, guestOptions, defaultUserId }: Props) {
   const t = useTranslations('list')
   const router = useRouter()
   const [itemName, setItemName] = useState('')
   const [quantity, setQuantity] = useState('1')
   const [unit, setUnit] = useState('unidades')
   const [notes, setNotes] = useState('')
-  const [assignedTo, setAssignedTo] = useState<string>('')
+  const [assignedTo, setAssignedTo] = useState<string>(defaultUserId || '')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
@@ -116,7 +117,6 @@ export default function AddItemModal({ categoryId, onClose, onAdded, isAdmin, gu
                 onChange={e => setAssignedTo(e.target.value)}
                 className="w-full px-3 py-3 border border-stone-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white"
               >
-                <option value="">Yo mismo</option>
                 {guestOptions.map(g => (
                   <option key={g.id} value={g.id}>{g.name}</option>
                 ))}

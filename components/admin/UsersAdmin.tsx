@@ -42,6 +42,7 @@ export default function UsersAdmin({ users: initial, currentUserId, eventGuests:
   // Create
   const [showCreate, setShowCreate] = useState(false)
   const [newName, setNewName] = useState('')
+  const [createError, setCreateError] = useState('')
   const [isCreating, startCreateTransition] = useTransition()
 
   // Inline rename
@@ -80,9 +81,12 @@ export default function UsersAdmin({ users: initial, currentUserId, eventGuests:
   function handleCreate(e: React.FormEvent) {
     e.preventDefault()
     if (!newName.trim()) return
+    setCreateError('')
     startCreateTransition(async () => {
       const res = await createPlaceholderGuest(eventId, newName)
-      if (!res?.error) {
+      if (res?.error) {
+        setCreateError(res.error)
+      } else {
         setNewName('')
         setShowCreate(false)
         router.refresh()
@@ -131,29 +135,34 @@ export default function UsersAdmin({ users: initial, currentUserId, eventGuests:
       {/* Create new guest */}
       <div className="mb-3">
         {showCreate ? (
-          <form onSubmit={handleCreate} className="bg-stone-50 rounded-2xl border border-stone-200 p-3 flex gap-2">
-            <input
-              type="text"
-              value={newName}
-              onChange={e => setNewName(e.target.value)}
-              placeholder="Nombre del invitado"
-              autoFocus
-              className="flex-1 px-3 py-2 text-sm border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
-            />
-            <button
-              type="submit"
-              disabled={!newName.trim() || isCreating}
-              className="px-3 py-2 text-xs bg-brand-500 text-white rounded-lg font-semibold hover:bg-brand-600 disabled:opacity-50"
-            >
-              {isCreating ? '...' : 'Agregar'}
-            </button>
-            <button
-              type="button"
-              onClick={() => { setShowCreate(false); setNewName('') }}
-              className="px-3 py-2 text-xs border border-stone-200 rounded-lg text-stone-500 hover:bg-stone-100"
-            >
-              Cancelar
-            </button>
+          <form onSubmit={handleCreate} className="bg-stone-50 rounded-2xl border border-stone-200 p-3 space-y-2">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={newName}
+                onChange={e => setNewName(e.target.value)}
+                placeholder="Nombre del invitado"
+                autoFocus
+                className="flex-1 px-3 py-2 text-sm border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
+              />
+              <button
+                type="submit"
+                disabled={!newName.trim() || isCreating}
+                className="px-3 py-2 text-xs bg-brand-500 text-white rounded-lg font-semibold hover:bg-brand-600 disabled:opacity-50"
+              >
+                {isCreating ? '...' : 'Agregar'}
+              </button>
+              <button
+                type="button"
+                onClick={() => { setShowCreate(false); setNewName(''); setCreateError('') }}
+                className="px-3 py-2 text-xs border border-stone-200 rounded-lg text-stone-500 hover:bg-stone-100"
+              >
+                Cancelar
+              </button>
+            </div>
+            {createError && (
+              <p className="text-xs text-red-600 bg-red-50 rounded-lg px-3 py-2">{createError}</p>
+            )}
           </form>
         ) : (
           <button
