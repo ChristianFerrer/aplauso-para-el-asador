@@ -107,7 +107,7 @@ export default async function HomePage({ params, searchParams }: Props) {
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-4">
         {event ? (
           <>
-            <EventCard event={event} locale={locale} />
+            <EventCard event={event} locale={locale} isAdmin={isAdmin} />
             <AttendanceKanban
               guests={guests}
               eventId={event.id}

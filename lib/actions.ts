@@ -150,6 +150,21 @@ export async function removeFromEvent(userId: string, eventId: string) {
   return { success: true }
 }
 
+export async function updateEvent(eventId: string, data: {
+  name: string
+  description: string
+  location: string
+  event_date: string
+}) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'No autenticado' }
+  const { error } = await supabase.from('events').update(data).eq('id', eventId)
+  if (error) return { error: error.message }
+  revalidatePath('/es'); revalidatePath('/en')
+  return { success: true }
+}
+
 export async function deletePlaceholderUser(profileId: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

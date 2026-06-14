@@ -90,8 +90,9 @@ export default function AttendanceKanban({ guests: initialGuests, userId, eventI
   function handleScroll() {
     const el = scrollRef.current
     if (!el) return
-    const colWidth = el.scrollWidth / COLUMNS.length
-    setActiveCol(Math.round(el.scrollLeft / colWidth))
+    const maxScroll = el.scrollWidth - el.clientWidth
+    const fraction = maxScroll > 0 ? el.scrollLeft / maxScroll : 0
+    setActiveCol(Math.round(fraction * (COLUMNS.length - 1)))
   }
 
   function moveCard(targetUserId: string, newStatus: AttendanceStatus) {

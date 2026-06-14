@@ -45,9 +45,10 @@ export default function ListCarousel({ categories: initialCategories, userId, is
 
   function handleScroll() {
     const el = scrollRef.current
-    if (!el || initialCategories.length === 0) return
-    const colWidth = el.scrollWidth / initialCategories.length
-    setActiveCat(Math.round(el.scrollLeft / colWidth))
+    if (!el || initialCategories.length <= 1) return
+    const maxScroll = el.scrollWidth - el.clientWidth
+    const fraction = maxScroll > 0 ? el.scrollLeft / maxScroll : 0
+    setActiveCat(Math.round(fraction * (initialCategories.length - 1)))
   }
 
   const guestOptions = guests
@@ -174,8 +175,8 @@ export default function ListCarousel({ categories: initialCategories, userId, is
         <div
           ref={scrollRef}
           onScroll={handleScroll}
-          className="flex gap-3 overflow-x-auto px-5 pb-4"
-          style={{ scrollSnapType: 'x mandatory', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
+          className="flex gap-3 overflow-x-auto pb-4"
+          style={{ scrollSnapType: 'x mandatory', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', paddingLeft: '8%', paddingRight: '8%' } as React.CSSProperties}
         >
           {initialCategories.map((cat, i) => {
             const color = CATEGORY_COLORS[i % CATEGORY_COLORS.length]
