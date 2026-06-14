@@ -137,8 +137,11 @@ export default function AttendanceKanban({ guests: initialGuests, userId, eventI
         Arrastrá tu tarjeta o tocá la columna para cambiar tu estado
       </p>
 
-      {/* 4-column grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+      {/* Horizontal carousel — scroll-snap */}
+      <div
+        className="flex gap-3 overflow-x-auto pb-2"
+        style={{ scrollSnapType: 'x mandatory', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}
+      >
         {COLUMNS.map(col => {
           const colGuests = guests.filter(g => g.status === col.id)
           const isTarget = isDragging && dragOverCol === col.id
@@ -149,6 +152,7 @@ export default function AttendanceKanban({ guests: initialGuests, userId, eventI
               onDragOver={e => onDragOver(e, col.id)}
               onDragLeave={() => setDragOverCol(null)}
               onDrop={e => onDrop(e, col.id)}
+              style={{ scrollSnapAlign: 'start', minWidth: 'calc(75% - 6px)', flexShrink: 0 }}
               className={cn(
                 'flex flex-col gap-1.5 rounded-2xl p-2 min-h-[110px] transition-all duration-150',
                 col.bg,
