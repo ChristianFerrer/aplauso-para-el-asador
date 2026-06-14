@@ -176,7 +176,7 @@ export default function ListCarousel({ categories: initialCategories, userId, is
           ref={scrollRef}
           onScroll={handleScroll}
           className="flex gap-3 overflow-x-auto pb-4"
-          style={{ scrollSnapType: 'x mandatory', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', paddingLeft: '8%', paddingRight: '8%' } as React.CSSProperties}
+          style={{ scrollSnapType: 'x mandatory', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', paddingLeft: '5%', paddingRight: '5%' } as React.CSSProperties}
         >
           {initialCategories.map((cat, i) => {
             const color = CATEGORY_COLORS[i % CATEGORY_COLORS.length]

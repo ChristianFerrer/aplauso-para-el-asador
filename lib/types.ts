@@ -44,6 +44,15 @@ export interface Category {
   items?: ListItem[]
 }
 
+export interface CustomStatus {
+  id: string
+  event_id: string
+  name: string
+  color: string
+  sort_order: number
+  created_at: string
+}
+
 export interface ListItem {
   id: string
   category_id: string

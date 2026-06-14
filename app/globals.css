@@ -48,7 +48,7 @@ h1, h2, h3, h4 {
     scroll-snap-align: start;
   }
   .carousel-col-main {
-    min-width: 84%;
+    min-width: 90%;
     flex-shrink: 0;
     scroll-snap-align: center;
   }

@@ -5,7 +5,7 @@ import EventCard from '@/components/home/EventCard'
 import AttendanceKanban from '@/components/home/AttendanceKanban'
 import ListCarousel from '@/components/home/ListCarousel'
 import IdentityPicker from '@/components/home/IdentityPicker'
-import { Event, EventGuest, Profile, Category, ListItem } from '@/lib/types'
+import { Event, EventGuest, Profile, Category, ListItem, CustomStatus } from '@/lib/types'
 
 type Props = {
   params: Promise<{ locale: string }>
@@ -51,6 +51,7 @@ export default async function HomePage({ params, searchParams }: Props) {
   let guests: EventGuest[] = []
   let categories: Category[] = []
   let unclaimedPlaceholders: { id: string; name: string }[] = []
+  let customStatuses: CustomStatus[] = []
 
   if (event) {
     // Auto-enroll current user if not already in this event
@@ -59,7 +60,7 @@ export default async function HomePage({ params, searchParams }: Props) {
       { onConflict: 'event_id,user_id', ignoreDuplicates: true }
     )
 
-    const [guestsRes, catsRes, placeholdersRes] = await Promise.all([
+    const [guestsRes, catsRes, placeholdersRes, customStatusesRes] = await Promise.all([
       supabase
         .from('event_guests')
         .select('*, profile:profiles(*)')
@@ -77,10 +78,16 @@ export default async function HomePage({ params, searchParams }: Props) {
         .eq('is_placeholder', true)
         .eq('identity_claimed', false)
         .order('name'),
+      supabase
+        .from('event_custom_statuses')
+        .select('*')
+        .eq('event_id', event.id)
+        .order('sort_order', { ascending: true }),
     ])
 
     guests = (guestsRes.data || []) as EventGuest[]
     unclaimedPlaceholders = (placeholdersRes.data || []) as { id: string; name: string }[]
+    customStatuses = (customStatusesRes.data || []) as CustomStatus[]
 
     const cats = (catsRes.data || []) as Category[]
     if (cats.length > 0) {
@@ -113,6 +120,7 @@ export default async function HomePage({ params, searchParams }: Props) {
               eventId={event.id}
               userId={user.id}
               isAdmin={isAdmin}
+              customStatuses={customStatuses}
             />
             <ListCarousel
               categories={categories}

@@ -165,6 +165,28 @@ export async function updateEvent(eventId: string, data: {
   return { success: true }
 }
 
+export async function addCustomStatus(eventId: string, name: string, color: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'No autenticado' }
+  const { data: last } = await supabase
+    .from('event_custom_statuses').select('sort_order').eq('event_id', eventId)
+    .order('sort_order', { ascending: false }).limit(1)
+  const nextOrder = last && last.length > 0 ? last[0].sort_order + 1 : 0
+  const { error } = await supabase.from('event_custom_statuses').insert({ event_id: eventId, name: name.trim(), color, sort_order: nextOrder })
+  if (error) return { error: error.message }
+  revalidatePath('/es'); revalidatePath('/en')
+  return { success: true }
+}
+
+export async function deleteCustomStatus(statusId: string) {
+  const supabase = await createClient()
+  const { error } = await supabase.from('event_custom_statuses').delete().eq('id', statusId)
+  if (error) return { error: error.message }
+  revalidatePath('/es'); revalidatePath('/en')
+  return { success: true }
+}
+
 export async function deletePlaceholderUser(profileId: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
