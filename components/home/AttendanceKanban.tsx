@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition, useRef, useEffect } from 'react'
-import { Users, Minus, Plus, Clock, Car, MapPin, XCircle, Check, X, GripVertical, LucideIcon } from 'lucide-react'
+import { Users, Minus, Plus, Clock, Car, MapPin, XCircle, Check, X, ChevronLeft, ChevronRight, LucideIcon } from 'lucide-react'
 import { updateAttendance, updatePlusOnes, addCustomStatus, deleteCustomStatus } from '@/lib/actions'
 import { EventGuest, AttendanceStatus, CustomStatus } from '@/lib/types'
 import { cn } from '@/lib/utils'
@@ -100,10 +100,7 @@ export default function AttendanceKanban({ guests: initialGuests, userId, eventI
   const [isDraggingCard, setIsDraggingCard] = useState(false)
   const draggedUserId = useRef<string>(userId)
 
-  // Column reorder state
-  const [dragOverColReorder, setDragOverColReorder] = useState<string | null>(null)
-  const isDraggingCol = useRef(false)
-  const draggingColId = useRef<string | null>(null)
+  // Column order state
   const [columnOrder, setColumnOrder] = useState<string[]>([])
 
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -159,7 +156,6 @@ export default function AttendanceKanban({ guests: initialGuests, userId, eventI
 
   // Card drag handlers
   function onCardDragStart(e: React.DragEvent, guestUserId: string) {
-    isDraggingCol.current = false
     e.dataTransfer.effectAllowed = 'move'
     e.dataTransfer.setData('text/plain', guestUserId)
     draggedUserId.current = guestUserId
@@ -167,55 +163,37 @@ export default function AttendanceKanban({ guests: initialGuests, userId, eventI
   }
   function onCardDragEnd() { setIsDraggingCard(false); setDragOverCol(null) }
 
-  // Column drag handlers (for reordering)
-  function onColDragStart(e: React.DragEvent, colId: string) {
-    isDraggingCol.current = true
-    draggingColId.current = colId
-    e.dataTransfer.effectAllowed = 'move'
-    e.dataTransfer.setData('text/plain', colId)
-  }
-  function onColDragEnd() {
-    isDraggingCol.current = false
-    draggingColId.current = null
-    setDragOverColReorder(null)
-  }
-
-  // Shared drop zone handlers on each column
   function onDragOver(e: React.DragEvent, colId: string) {
     e.preventDefault()
     e.dataTransfer.dropEffect = 'move'
-    if (isDraggingCol.current) {
-      if (draggingColId.current !== colId) setDragOverColReorder(colId)
-    } else {
-      setDragOverCol(colId)
-    }
+    setDragOverCol(colId)
   }
-  function onDragLeave() {
-    setDragOverCol(null)
-    setDragOverColReorder(null)
-  }
+  function onDragLeave() { setDragOverCol(null) }
   function onDrop(e: React.DragEvent, colId: string) {
     e.preventDefault()
-    if (isDraggingCol.current) {
-      const fromId = draggingColId.current
-      if (fromId && fromId !== colId) {
-        setColumnOrder(prev => {
-          const arr = [...prev]
-          const fi = arr.indexOf(fromId)
-          const ti = arr.indexOf(colId)
-          arr.splice(fi, 1)
-          arr.splice(ti, 0, fromId)
-          return arr
-        })
-      }
-      isDraggingCol.current = false
-      draggingColId.current = null
-      setDragOverColReorder(null)
-    } else {
-      setIsDraggingCard(false)
-      setDragOverCol(null)
-      moveCard(draggedUserId.current, colId)
-    }
+    setIsDraggingCard(false)
+    setDragOverCol(null)
+    moveCard(draggedUserId.current, colId)
+  }
+
+  // Column reorder with arrows
+  function moveColLeft(colId: string) {
+    setColumnOrder(prev => {
+      const arr = [...prev]
+      const i = arr.indexOf(colId)
+      if (i <= 0) return prev
+      ;[arr[i - 1], arr[i]] = [arr[i], arr[i - 1]]
+      return arr
+    })
+  }
+  function moveColRight(colId: string) {
+    setColumnOrder(prev => {
+      const arr = [...prev]
+      const i = arr.indexOf(colId)
+      if (i >= arr.length - 1) return prev
+      ;[arr[i], arr[i + 1]] = [arr[i + 1], arr[i]]
+      return arr
+    })
   }
 
   function handleAddStatus(e: React.FormEvent) {
@@ -259,7 +237,7 @@ export default function AttendanceKanban({ guests: initialGuests, userId, eventI
         </div>
       </div>
       <p className="text-[11px] text-stone-400 mb-3 ml-10">
-        Tocá una columna para cambiar tu estado · arrastrá para reordenar
+        Tocá una columna para cambiar tu estado · usá las flechas para reordenar
       </p>
 
       {/* Add custom status form */}
@@ -304,7 +282,9 @@ export default function AttendanceKanban({ guests: initialGuests, userId, eventI
         {sortedColumns.map(col => {
           const colGuests = guests.filter(g => g.status === col.id)
           const isCardTarget = isDraggingCard && dragOverCol === col.id
-          const isColTarget = dragOverColReorder === col.id
+          const colIdx = sortedColumns.indexOf(col)
+          const isFirst = colIdx === 0
+          const isLast = colIdx === sortedColumns.length - 1
 
           return (
             <div
@@ -315,29 +295,26 @@ export default function AttendanceKanban({ guests: initialGuests, userId, eventI
               className={cn(
                 'carousel-col-half flex flex-col gap-1.5 rounded-2xl p-1.5 min-h-[110px] transition-all duration-150',
                 col.bg,
-                isCardTarget ? col.drop : '',
-                isColTarget ? 'ring-2 ring-orange-400 ring-offset-1 scale-[1.02]' : ''
+                isCardTarget ? col.drop : ''
               )}
             >
-              {/* Column header with drag handle */}
-              <div className="flex items-center gap-1">
-                {/* Drag handle for column reorder */}
-                <div
-                  draggable
-                  onDragStart={e => onColDragStart(e, col.id)}
-                  onDragEnd={onColDragEnd}
-                  className="flex-shrink-0 cursor-grab active:cursor-grabbing p-0.5 text-stone-300 hover:text-stone-400 transition-colors touch-none"
-                  title="Arrastrá para reordenar"
+              {/* Column header */}
+              <div className="flex items-center gap-0.5">
+                {/* Left arrow */}
+                <button
+                  onClick={() => moveColLeft(col.id)}
+                  disabled={isFirst}
+                  className="flex-shrink-0 w-5 h-7 rounded-lg flex items-center justify-center text-stone-400 hover:text-stone-600 hover:bg-white/60 disabled:opacity-20 transition-colors"
                 >
-                  <GripVertical className="w-3 h-3" strokeWidth={2} />
-                </div>
+                  <ChevronLeft className="w-3 h-3" strokeWidth={2.5} />
+                </button>
 
                 {/* Tap to change my status */}
                 <button
                   onClick={() => moveCard(userId, col.id)}
                   disabled={myStatus === col.id || isPending}
                   className={cn(
-                    'flex-1 rounded-xl px-2 py-1.5 transition-all duration-150 disabled:cursor-default',
+                    'flex-1 rounded-xl px-1.5 py-1.5 transition-all duration-150 disabled:cursor-default',
                     myStatus === col.id ? col.headerActive : col.headerIdle
                   )}
                 >
@@ -345,6 +322,15 @@ export default function AttendanceKanban({ guests: initialGuests, userId, eventI
                     <span className="text-xs font-bold tracking-wide leading-none truncate">{col.label}</span>
                     <span className="text-xs font-bold opacity-70 flex-shrink-0">{colGuests.length}</span>
                   </div>
+                </button>
+
+                {/* Right arrow */}
+                <button
+                  onClick={() => moveColRight(col.id)}
+                  disabled={isLast}
+                  className="flex-shrink-0 w-5 h-7 rounded-lg flex items-center justify-center text-stone-400 hover:text-stone-600 hover:bg-white/60 disabled:opacity-20 transition-colors"
+                >
+                  <ChevronRight className="w-3 h-3" strokeWidth={2.5} />
                 </button>
 
                 {/* Delete custom column */}

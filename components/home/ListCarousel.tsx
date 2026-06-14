@@ -185,7 +185,7 @@ export default function ListCarousel({ categories: initialCategories, userId, is
             return (
               <div
                 key={cat.id}
-                className="carousel-col-main flex flex-col bg-stone-50 rounded-2xl border border-stone-100 overflow-hidden h-80"
+                className="carousel-col-main flex flex-col bg-stone-50 rounded-2xl border border-stone-100 overflow-hidden h-[352px]"
               >
                 {/* Column header */}
                 <div className={`px-3.5 py-3 bg-gradient-to-br ${color} flex items-center gap-2 flex-shrink-0`}>

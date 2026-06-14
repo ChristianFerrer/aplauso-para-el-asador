@@ -48,18 +48,18 @@ export default function EventCard({ event, locale, isAdmin }: Props) {
         </div>
 
         {/* Details */}
-        <div className="px-5 py-4 flex flex-col sm:flex-row sm:items-center gap-3">
-          <div className="flex items-center gap-2.5 text-sm flex-1">
-            <div className="w-8 h-8 bg-orange-100 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Calendar className="w-4 h-4 text-orange-500" strokeWidth={1.5} />
-            </div>
-            <span className="text-stone-700 font-semibold">{formatDate(event.event_date, locale)}</span>
-          </div>
-          <div className="flex items-center gap-2.5 text-sm flex-1">
+        <div className="px-5 py-4 flex flex-col gap-3">
+          <div className="flex items-center gap-2.5 text-sm">
             <div className="w-8 h-8 bg-rose-100 rounded-xl flex items-center justify-center flex-shrink-0">
               <MapPin className="w-4 h-4 text-rose-500" strokeWidth={1.5} />
             </div>
             <span className="text-stone-700 font-semibold">{event.location || '—'}</span>
+          </div>
+          <div className="flex items-center gap-2.5 text-sm">
+            <div className="w-8 h-8 bg-orange-100 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Calendar className="w-4 h-4 text-orange-500" strokeWidth={1.5} />
+            </div>
+            <span className="text-stone-700 font-semibold">{formatDate(event.event_date, locale)}</span>
           </div>
         </div>
       </div>
