@@ -137,9 +137,9 @@ export default function AttendanceKanban({ guests: initialGuests, userId, eventI
         Arrastrá tu tarjeta o tocá la columna para cambiar tu estado
       </p>
 
-      {/* Horizontal carousel — scroll-snap */}
+      {/* Horizontal carousel — scroll-snap, 2 columns always visible */}
       <div
-        className="flex gap-3 overflow-x-auto pb-2"
+        className="flex gap-2 overflow-x-auto pb-2"
         style={{ scrollSnapType: 'x mandatory', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}
       >
         {COLUMNS.map(col => {
@@ -152,9 +152,9 @@ export default function AttendanceKanban({ guests: initialGuests, userId, eventI
               onDragOver={e => onDragOver(e, col.id)}
               onDragLeave={() => setDragOverCol(null)}
               onDrop={e => onDrop(e, col.id)}
-              style={{ scrollSnapAlign: 'start', minWidth: 'calc(75% - 6px)', flexShrink: 0 }}
+              style={{ scrollSnapAlign: 'start', minWidth: 'calc(50% - 4px)', flexShrink: 0 }}
               className={cn(
-                'flex flex-col gap-1.5 rounded-2xl p-2 min-h-[110px] transition-all duration-150',
+                'flex flex-col gap-1.5 rounded-2xl p-1.5 min-h-[110px] transition-all duration-150',
                 col.bg,
                 isTarget ? col.drop : ''
               )}
@@ -164,15 +164,14 @@ export default function AttendanceKanban({ guests: initialGuests, userId, eventI
                 onClick={() => moveCard(userId, col.id)}
                 disabled={myStatus === col.id || isPending}
                 className={cn(
-                  'w-full rounded-xl px-2 py-2 text-center transition-all duration-150 disabled:cursor-default',
+                  'w-full rounded-xl px-2 py-1.5 transition-all duration-150 disabled:cursor-default',
                   myStatus === col.id ? col.headerActive : col.headerIdle
                 )}
               >
-                <div className="flex items-center justify-center gap-1 mb-0.5">
-                  <col.icon className="w-3 h-3" strokeWidth={2} />
-                  <span className="text-[10px] font-bold tracking-wide leading-none">{col.label}</span>
+                <div className="flex items-center justify-between gap-1">
+                  <span className="text-xs font-bold tracking-wide leading-none truncate">{col.label}</span>
+                  <span className="text-xs font-bold opacity-70 flex-shrink-0">{colGuests.length}</span>
                 </div>
-                <span className="text-[10px] opacity-60">{colGuests.length}</span>
               </button>
 
               {/* Guest cards */}
