@@ -78,12 +78,21 @@ export default function AttendanceKanban({ guests: initialGuests, userId, eventI
   const [isDragging, setIsDragging] = useState(false)
   const [isPending, startTransition] = useTransition()
   const [isPlusPending, startPlusTransition] = useTransition()
+  const [activeCol, setActiveCol] = useState(0)
   const draggedUserId = useRef<string>(userId)
+  const scrollRef = useRef<HTMLDivElement>(null)
 
   const myGuest = guests.find(g => g.user_id === userId)
   const myStatus = myGuest?.status ?? 'pending'
   const myPlusOnes = myGuest?.plus_ones ?? 0
   const total = guests.reduce((sum, g) => sum + 1 + (g.plus_ones ?? 0), 0)
+
+  function handleScroll() {
+    const el = scrollRef.current
+    if (!el) return
+    const colWidth = el.scrollWidth / COLUMNS.length
+    setActiveCol(Math.round(el.scrollLeft / colWidth))
+  }
 
   function moveCard(targetUserId: string, newStatus: AttendanceStatus) {
     if (isPending) return
@@ -134,13 +143,15 @@ export default function AttendanceKanban({ guests: initialGuests, userId, eventI
         </span>
       </div>
       <p className="text-[11px] text-stone-400 mb-4 ml-10">
-        Arrastrá tu tarjeta o tocá la columna para cambiar tu estado
+        Tocá una columna para cambiar tu estado
       </p>
 
-      {/* Horizontal carousel — scroll-snap, 2 columns always visible */}
+      {/* Columns: carousel on mobile (2 visible), grid on sm+ (4 visible) */}
       <div
-        className="flex gap-2 overflow-x-auto pb-2"
-        style={{ scrollSnapType: 'x mandatory', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}
+        ref={scrollRef}
+        onScroll={handleScroll}
+        className="flex gap-2 overflow-x-auto pb-1 sm:grid sm:grid-cols-4 sm:overflow-visible sm:pb-0"
+        style={{ scrollSnapType: 'x mandatory', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
       >
         {COLUMNS.map(col => {
           const colGuests = guests.filter(g => g.status === col.id)
@@ -152,9 +163,8 @@ export default function AttendanceKanban({ guests: initialGuests, userId, eventI
               onDragOver={e => onDragOver(e, col.id)}
               onDragLeave={() => setDragOverCol(null)}
               onDrop={e => onDrop(e, col.id)}
-              style={{ scrollSnapAlign: 'start', minWidth: 'calc(50% - 4px)', flexShrink: 0 }}
               className={cn(
-                'flex flex-col gap-1.5 rounded-2xl p-1.5 min-h-[110px] transition-all duration-150',
+                'carousel-col-half flex flex-col gap-1.5 rounded-2xl p-1.5 min-h-[110px] transition-all duration-150',
                 col.bg,
                 isTarget ? col.drop : ''
               )}
@@ -214,6 +224,21 @@ export default function AttendanceKanban({ guests: initialGuests, userId, eventI
             </div>
           )
         })}
+      </div>
+
+      {/* Instagram-style scroll dots — only on mobile */}
+      <div className="flex justify-center gap-1.5 mt-3 sm:hidden">
+        {COLUMNS.map((_, i) => (
+          <div
+            key={i}
+            className={cn(
+              'rounded-full transition-all duration-300',
+              i === activeCol
+                ? 'w-4 h-1.5 bg-gradient-to-r from-orange-500 to-rose-500'
+                : 'w-1.5 h-1.5 bg-stone-200'
+            )}
+          />
+        ))}
       </div>
 
       {/* Plus ones stepper */}

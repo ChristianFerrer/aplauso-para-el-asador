@@ -41,4 +41,26 @@ h1, h2, h3, h4 {
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+  /* Responsive carousel column widths — overrides inline styles via media query */
+  .carousel-col-half {
+    min-width: calc(50% - 4px);
+    flex-shrink: 0;
+    scroll-snap-align: start;
+  }
+  .carousel-col-main {
+    min-width: calc(84% - 6px);
+    flex-shrink: 0;
+    scroll-snap-align: start;
+  }
+}
+
+@media (min-width: 640px) {
+  .carousel-col-half {
+    min-width: 0;
+    flex: 1;
+  }
+  .carousel-col-main {
+    min-width: 260px;
+    flex-shrink: 0;
+  }
 }

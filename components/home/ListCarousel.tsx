@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Package, Plus, Trash2, X, Check, Sparkles } from 'lucide-react'
 import { Category, ListItem, EventGuest } from '@/lib/types'
@@ -38,8 +38,17 @@ export default function ListCarousel({ categories: initialCategories, userId, is
   const [showAddCat, setShowAddCat] = useState(false)
   const [newCatName, setNewCatName] = useState('')
   const [newCatIcon, setNewCatIcon] = useState('utensils')
+  const [activeCat, setActiveCat] = useState(0)
   const [, startTransition] = useTransition()
   const [isCatPending, startCatTransition] = useTransition()
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  function handleScroll() {
+    const el = scrollRef.current
+    if (!el || initialCategories.length === 0) return
+    const colWidth = el.scrollWidth / initialCategories.length
+    setActiveCat(Math.round(el.scrollLeft / colWidth))
+  }
 
   const guestOptions = guests
     .filter(g => g.profile?.name)
@@ -161,9 +170,12 @@ export default function ListCarousel({ categories: initialCategories, userId, is
           </p>
         </div>
       ) : (
+        <>
         <div
-          className="flex gap-3 overflow-x-auto px-5 pb-5"
-          style={{ scrollSnapType: 'x mandatory', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}
+          ref={scrollRef}
+          onScroll={handleScroll}
+          className="flex gap-3 overflow-x-auto px-5 pb-4"
+          style={{ scrollSnapType: 'x mandatory', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
         >
           {initialCategories.map((cat, i) => {
             const color = CATEGORY_COLORS[i % CATEGORY_COLORS.length]
@@ -172,8 +184,7 @@ export default function ListCarousel({ categories: initialCategories, userId, is
             return (
               <div
                 key={cat.id}
-                style={{ scrollSnapAlign: 'start', minWidth: 'calc(80% - 6px)', flexShrink: 0 }}
-                className="flex flex-col bg-stone-50 rounded-2xl border border-stone-100 overflow-hidden"
+                className="carousel-col-main flex flex-col bg-stone-50 rounded-2xl border border-stone-100 overflow-hidden"
               >
                 {/* Column header */}
                 <div className={`px-3.5 py-3 bg-gradient-to-br ${color} flex items-center gap-2 flex-shrink-0`}>
@@ -270,6 +281,23 @@ export default function ListCarousel({ categories: initialCategories, userId, is
             )
           })}
         </div>
+
+        {/* Instagram-style scroll dots */}
+        {initialCategories.length > 1 && (
+          <div className="flex justify-center gap-1.5 pb-4">
+            {initialCategories.map((_, i) => (
+              <div
+                key={i}
+                className={`rounded-full transition-all duration-300 ${
+                  i === activeCat
+                    ? 'w-4 h-1.5 bg-gradient-to-r from-orange-500 to-rose-500'
+                    : 'w-1.5 h-1.5 bg-stone-200'
+                }`}
+              />
+            ))}
+          </div>
+        )}
+        </>
       )}
 
       {showItemModal && (
