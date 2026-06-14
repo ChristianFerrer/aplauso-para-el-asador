@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Navbar from '@/components/Navbar'
 import EventCard from '@/components/home/EventCard'
+import EventSummary from '@/components/home/EventSummary'
 import AttendanceKanban from '@/components/home/AttendanceKanban'
 import ListCarousel from '@/components/home/ListCarousel'
 import IdentityPicker from '@/components/home/IdentityPicker'
@@ -115,6 +116,7 @@ export default async function HomePage({ params, searchParams }: Props) {
         {event ? (
           <>
             <EventCard event={event} locale={locale} isAdmin={isAdmin} />
+            <EventSummary guests={guests} categories={categories} />
             <AttendanceKanban
               guests={guests}
               eventId={event.id}

@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { MapPin, Calendar, Beef, Pencil } from 'lucide-react'
+import { MapPin, Calendar, Clock, Beef, Pencil } from 'lucide-react'
 import { Event } from '@/lib/types'
-import { formatDate } from '@/lib/utils'
+import { formatDateOnly, formatTimeOnly } from '@/lib/utils'
 import EditEventModal from './EditEventModal'
 
 interface Props {
@@ -47,7 +47,7 @@ export default function EventCard({ event, locale, isAdmin }: Props) {
           </div>
         </div>
 
-        {/* Details */}
+        {/* Details — location, then date, then time, each on its own row */}
         <div className="px-5 py-4 flex flex-col gap-3">
           <div className="flex items-center gap-2.5 text-sm">
             <div className="w-8 h-8 bg-rose-100 rounded-xl flex items-center justify-center flex-shrink-0">
@@ -59,7 +59,13 @@ export default function EventCard({ event, locale, isAdmin }: Props) {
             <div className="w-8 h-8 bg-orange-100 rounded-xl flex items-center justify-center flex-shrink-0">
               <Calendar className="w-4 h-4 text-orange-500" strokeWidth={1.5} />
             </div>
-            <span className="text-stone-700 font-semibold">{formatDate(event.event_date, locale)}</span>
+            <span className="text-stone-700 font-semibold capitalize">{formatDateOnly(event.event_date, locale)}</span>
+          </div>
+          <div className="flex items-center gap-2.5 text-sm">
+            <div className="w-8 h-8 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Clock className="w-4 h-4 text-amber-500" strokeWidth={1.5} />
+            </div>
+            <span className="text-stone-700 font-semibold">{formatTimeOnly(event.event_date, locale)} hs</span>
           </div>
         </div>
       </div>
