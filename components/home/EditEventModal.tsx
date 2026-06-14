@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { X, Calendar, Clock, Beef, FileText } from 'lucide-react'
 import { updateEvent } from '@/lib/actions'
 import { Event } from '@/lib/types'
@@ -14,11 +15,12 @@ interface Props {
 function parseDateParts(iso: string) {
   const d = iso ? new Date(iso) : null
   const date = d ? d.toISOString().split('T')[0] : ''
-  const time = d ? `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}` : '13:00'
+  const time = d ? `${String(d.getUTCHours()).padStart(2, '0')}:${String(d.getUTCMinutes()).padStart(2, '0')}` : '13:00'
   return { date, time }
 }
 
 export default function EditEventModal({ event, onClose }: Props) {
+  const router = useRouter()
   const { date: initDate, time: initTime } = parseDateParts(event.event_date)
   const [name, setName] = useState(event.name)
   const [description, setDescription] = useState(event.description || '')
@@ -37,10 +39,10 @@ export default function EditEventModal({ event, onClose }: Props) {
         name: name.trim(),
         description: description.trim(),
         location: location.trim(),
-        event_date: date && time ? `${date}T${time}:00` : date,
+        event_date: date && time ? `${date}T${time}:00Z` : date,
       })
       if (res?.error) setError(res.error)
-      else onClose()
+      else { router.refresh(); onClose() }
     })
   }
 

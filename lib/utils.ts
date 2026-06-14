@@ -22,6 +22,7 @@ export function formatDateOnly(dateString: string, locale: string): string {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
+    timeZone: 'UTC',
   }).format(new Date(dateString))
 }
 
@@ -29,6 +30,8 @@ export function formatTimeOnly(dateString: string, locale: string): string {
   return new Intl.DateTimeFormat(locale === 'es' ? 'es-AR' : 'en-US', {
     hour: '2-digit',
     minute: '2-digit',
+    hour12: false,
+    timeZone: 'UTC',
   }).format(new Date(dateString))
 }
 
