@@ -91,29 +91,27 @@ export default function EditEventModal({ event, onClose }: Props) {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="flex items-center gap-1.5 text-xs font-bold text-stone-600 mb-1.5">
-                <Calendar className="w-3 h-3" /> Fecha
-              </label>
-              <input
-                type="date"
-                value={date}
-                onChange={e => setDate(e.target.value)}
-                className="w-full px-3 py-2.5 text-sm border-2 border-stone-200 rounded-xl focus:outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10"
-              />
-            </div>
-            <div>
-              <label className="flex items-center gap-1.5 text-xs font-bold text-stone-600 mb-1.5">
-                <Clock className="w-3 h-3" /> Hora
-              </label>
-              <input
-                type="time"
-                value={time}
-                onChange={e => setTime(e.target.value)}
-                className="w-full px-3 py-2.5 text-sm border-2 border-stone-200 rounded-xl focus:outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10"
-              />
-            </div>
+          <div>
+            <label className="flex items-center gap-1.5 text-xs font-bold text-stone-600 mb-1.5">
+              <Calendar className="w-3 h-3" /> Fecha
+            </label>
+            <input
+              type="date"
+              value={date}
+              onChange={e => setDate(e.target.value)}
+              className="w-full px-3.5 py-2.5 text-sm border-2 border-stone-200 rounded-xl focus:outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10"
+            />
+          </div>
+          <div>
+            <label className="flex items-center gap-1.5 text-xs font-bold text-stone-600 mb-1.5">
+              <Clock className="w-3 h-3" /> Hora
+            </label>
+            <input
+              type="time"
+              value={time}
+              onChange={e => setTime(e.target.value)}
+              className="w-full px-3.5 py-2.5 text-sm border-2 border-stone-200 rounded-xl focus:outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10"
+            />
           </div>
 
           <div>
