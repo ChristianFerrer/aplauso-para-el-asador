@@ -113,14 +113,40 @@ export default function AttendanceKanban({ guests: initialGuests, userId, eventI
     })),
   ]
 
-  // Sync column order when custom statuses change
+  const storageKey = `kanban-col-order-${eventId}`
+
+  // Initialize column order from localStorage on mount
+  useEffect(() => {
+    const allIds = allColumns.map(c => c.id)
+    const saved = localStorage.getItem(storageKey)
+    if (!saved) { setColumnOrder(allIds); return }
+    try {
+      const parsed: string[] = JSON.parse(saved)
+      const valid = parsed.filter(id => allIds.includes(id))
+      const newIds = allIds.filter(id => !parsed.includes(id))
+      setColumnOrder(valid.length > 0 ? [...valid, ...newIds] : allIds)
+    } catch {
+      setColumnOrder(allIds)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Sync when custom statuses are added or removed
   useEffect(() => {
     setColumnOrder(prev => {
-      const newIds = allColumns.map(c => c.id).filter(id => !prev.includes(id))
-      const valid = prev.filter(id => allColumns.some(c => c.id === id))
-      return valid.length === 0 ? allColumns.map(c => c.id) : [...valid, ...newIds]
+      if (prev.length === 0) return prev
+      const allIds = allColumns.map(c => c.id)
+      const valid = prev.filter(id => allIds.includes(id))
+      const newIds = allIds.filter(id => !prev.includes(id))
+      return [...valid, ...newIds]
     })
   }, [customStatuses.length, customStatuses.map(c => c.id).join()])
+
+  // Persist column order to localStorage whenever it changes
+  useEffect(() => {
+    if (columnOrder.length === 0) return
+    localStorage.setItem(storageKey, JSON.stringify(columnOrder))
+  }, [columnOrder, storageKey])
 
   const sortedColumns = columnOrder.length > 0
     ? columnOrder.map(id => allColumns.find(c => c.id === id)).filter((c): c is BaseColumn => Boolean(c))
